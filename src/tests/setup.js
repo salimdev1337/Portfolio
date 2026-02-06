@@ -8,7 +8,7 @@ afterEach(() => {
 })
 
 // Mock IntersectionObserver (used by useScrollAnimation)
-global.IntersectionObserver = class IntersectionObserver {
+globalThis.IntersectionObserver = class IntersectionObserver {
   constructor(callback) {
     this.callback = callback
   }
@@ -48,7 +48,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 }
-global.localStorage = localStorageMock
+globalThis.localStorage = localStorageMock
 
 // Mock scrollIntoView (used by Hero section)
 Element.prototype.scrollIntoView = vi.fn()

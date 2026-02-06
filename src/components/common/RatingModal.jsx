@@ -15,13 +15,6 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
 
   const CHEAT_CODE = 'BRINGITON';
 
-  // Check cheat code when input changes
-  useEffect(() => {
-    if (cheatInput.toUpperCase() === CHEAT_CODE) {
-      activateCheat();
-    }
-  }, [cheatInput]);
-
   const activateCheat = () => {
     setCheatActivated(true);
     setRating(5);
@@ -32,6 +25,13 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
       setPoliceLights(false);
     }, 3000);
   };
+
+  // Check cheat code when input changes
+  useEffect(() => {
+    if (cheatInput.toUpperCase() === CHEAT_CODE) {
+      activateCheat();
+    }
+  }, [cheatInput]);
 
   const handleStarClick = (value) => {
     setRating(value);

@@ -21,7 +21,7 @@ describe('ProjectCard Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Mock window.open
-    global.window.open = vi.fn()
+    window.open = vi.fn()
   })
 
   describe('Rendering', () => {

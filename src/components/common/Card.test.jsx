@@ -129,7 +129,7 @@ describe('Card Component', () => {
     })
 
     it('should forward additional props', () => {
-      const { container } = render(
+      render(
         <Card data-testid="custom-card" aria-label="Test Card">
           Content
         </Card>

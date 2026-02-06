@@ -20,6 +20,108 @@ This file contains development best practices, guidelines, and instructions for 
 
 ---
 
+## 🗂️ REPOSITORY HYGIENE & FILE MANAGEMENT
+
+### 🚫 Files That Should NEVER Be Committed
+
+**Generated Files:**
+- `coverage/` - Test coverage reports (regenerated on every test run)
+- `node_modules/` - Dependencies (installed via package.json)
+- `dist/`, `build/` - Production builds
+- `.cache/`, `.parcel-cache/` - Build caches
+
+**Local Configuration:**
+- `.claude/` - Claude AI local session data
+- `.env`, `.env.local` - Environment variables with secrets
+- `.vscode/settings.json` (unless team-shared)
+- `.DS_Store`, `Thumbs.db` - OS-specific files
+
+**Planning/Development Notes:**
+- `portfolio.md` - Detailed project planning (53KB - keep local)
+- `task.md` - Task tracking (keep local)
+- `TODO.md`, `NOTES.md` - Personal notes
+- `*.draft.md` - Work-in-progress documents
+
+**Temporary Files:**
+- `*.log` - Log files
+- `*.tmp`, `*.temp` - Temporary files
+- `*.swp`, `*~` - Editor swap files
+
+### ✅ Files That MUST Be Committed
+
+**Configuration Files:**
+- `vite.config.js` - Vite build configuration
+- `eslint.config.js` - Linting rules
+- `tailwind.config.js` - Tailwind CSS configuration
+- `postcss.config.js` - PostCSS configuration
+- `.prettierrc`, `.prettierignore` - Code formatting
+- `package.json`, `package-lock.json` - Dependency management
+
+**Documentation:**
+- `README.md` - Project documentation
+- `CLAUDE.md` - Development guidelines (this file)
+- `LICENSE` - Project license
+
+**Source Code:**
+- All files in `src/` directory
+- All files in `public/` directory
+- Test files (`*.test.js`, `*.test.jsx`)
+
+**CI/CD:**
+- `.github/workflows/` - GitHub Actions workflows
+
+### 🔍 .gitignore Best Practices
+
+**DO:**
+- ✅ Use specific paths instead of wildcards when possible
+- ✅ Comment sections for clarity
+- ✅ Organize by category (Dependencies, Build, Testing, etc.)
+- ✅ Include both frontend and backend ignores
+
+**DON'T:**
+- ❌ Use broad wildcards like `vite.*` (ignores vite.config.js!)
+- ❌ Use broad wildcards like `eslint.*` (ignores eslint.config.js!)
+- ❌ Forget to ignore OS-specific files (.DS_Store, Thumbs.db)
+- ❌ Commit sensitive data (.env files, API keys)
+
+### 🧹 Cleaning Up Already-Tracked Files
+
+If files are already tracked by Git but should be ignored:
+
+```bash
+# Remove from Git but keep locally
+git rm --cached coverage/ -r
+git rm --cached portfolio.md
+git rm --cached task.md
+
+# Commit the removal
+git commit -m "chore: remove generated and local files from repo"
+
+# Now .gitignore will work for these files
+```
+
+**CRITICAL:** Never run `git rm` without `--cached` flag unless you want to delete the file completely!
+
+### 📋 Current Repository Status (as of Feb 6, 2026)
+
+**Issues to Fix:**
+1. ❌ `coverage/` directory is tracked (836KB of generated files)
+2. ❌ `portfolio.md` is tracked (should be local only)
+3. ✅ `.gitignore` has been updated to fix wildcards
+4. ⚠️ Linting errors exist that need fixing:
+   - `RatingModal.jsx` - Variable accessed before declaration
+   - `ProjectCard.test.jsx` - 'global' is not defined
+   - `Card.test.jsx` - Unused variable
+
+**Next Steps:**
+1. Remove tracked files that should be ignored
+2. Fix linting errors
+3. Add `.env.example` files for both frontend and backend
+4. Create backend directory structure
+5. Add GitHub Actions workflow
+
+---
+
 ## 💻 DEVELOPMENT PRINCIPLES
 
 ### Code Quality
@@ -717,6 +819,187 @@ Add in HTML comments:
 
 ---
 
-**Last Updated:** 2026-02-06
-**Status:** 🟢 Active Development
-**Deadline:** Sunday, February 9, 2026
+## 📊 PROJECT STATUS & EVALUATION
+
+### Current Status (Feb 6, 2026)
+**Overall:** 🟡 Good Progress with Issues to Address
+**Deadline:** Sunday, February 9, 2026 (3 days remaining)
+
+### ✅ Completed Features
+- [x] Project setup with Vite + React 19
+- [x] Component architecture (common, sections, layout)
+- [x] Theme system with dark/light mode toggle
+- [x] Hero section with pixel art styling
+- [x] About section
+- [x] Projects section with filtering
+- [x] Skills section
+- [x] Contact section
+- [x] Footer with social links
+- [x] Navbar with responsive menu
+- [x] Loading screen component
+- [x] Testing infrastructure (Vitest + Testing Library)
+- [x] Code quality tools (ESLint, Prettier)
+- [x] Scroll animations
+- [x] Rating modal with Konami code easter egg
+
+### 🔧 Known Issues & Required Fixes
+
+**CRITICAL (Must Fix Before Deploy):**
+1. ❌ **Linting Errors (3 errors)**
+   - `src/components/common/RatingModal.jsx:21` - `activateCheat` accessed before declaration
+   - `src/components/common/ProjectCard.test.jsx:24` - 'global' is not defined
+   - `src/components/common/Card.test.jsx:132` - Unused 'container' variable
+
+2. ❌ **Repository Hygiene**
+   - `coverage/` directory tracked (836KB - should be gitignored)
+   - `portfolio.md` tracked (53KB planning doc - should be local only)
+
+**HIGH PRIORITY:**
+3. ⚠️ **Missing Files**
+   - `.env.example` - No template for environment variables
+   - `.github/workflows/deploy.yml` - No CI/CD workflow
+   - Backend directory structure not created
+
+4. ⚠️ **Documentation Gaps**
+   - No setup instructions for environment variables
+   - No contribution guidelines
+   - Missing LICENSE file
+
+**MEDIUM PRIORITY:**
+5. 📝 **Content Needed**
+   - Actual project screenshots
+   - Pixel art assets
+   - Favicon
+   - Open Graph images for social sharing
+
+6. 🎨 **Design Polish**
+   - Final color palette refinement
+   - Typography hierarchy finalization
+   - Spacing consistency audit
+
+### 📈 Code Quality Metrics
+
+**Test Coverage:** ~80% (Target: 80%)
+- Lines: 80%+
+- Functions: 80%+
+- Branches: 75%+
+- Statements: 80%+
+
+**Linting:** ❌ 3 errors, 1 warning
+- **Target:** 0 errors, 0 warnings
+
+**Bundle Size:** Not yet measured
+- **Target:** <250kb JS (gzipped), <50kb CSS (gzipped)
+
+**Performance:** Not yet tested
+- **Target:** Lighthouse scores >90 across all metrics
+
+### 🎯 Immediate Next Steps (Priority Order)
+
+1. **Fix linting errors** (30 minutes)
+   - Move `activateCheat` function before useEffect
+   - Fix test globals configuration
+   - Remove unused variables
+
+2. **Clean repository** (15 minutes)
+   - Remove `coverage/` from tracking
+   - Remove `portfolio.md` from tracking
+   - Commit updated .gitignore
+
+3. **Create environment templates** (30 minutes)
+   - Add `.env.example` for frontend
+   - Add `backend/.env.example` for backend
+   - Document all required variables
+
+4. **Backend implementation** (4-6 hours)
+   - Create backend directory structure
+   - Implement Flask API
+   - Add n8n webhook integration
+   - Add rate limiting
+   - Add validation
+
+5. **GitHub Actions workflow** (1-2 hours)
+   - Create deployment workflow
+   - Configure secrets
+   - Test deployment
+
+6. **Content finalization** (2-3 hours)
+   - Add project screenshots
+   - Create pixel art assets
+   - Add favicon
+   - Final content review
+
+7. **Testing & polish** (2-3 hours)
+   - Cross-browser testing
+   - Mobile device testing
+   - Lighthouse audit
+   - Final accessibility check
+
+### 🚀 Deployment Readiness Checklist
+
+**Code Quality:** 60% Complete
+- [x] ESLint configured
+- [x] Prettier configured
+- [ ] All linting errors fixed
+- [x] Test coverage >80%
+- [ ] No console errors/warnings
+
+**Features:** 80% Complete
+- [x] All main sections implemented
+- [x] Dark mode working
+- [x] Responsive design
+- [x] Animations
+- [ ] Backend API
+- [ ] Contact form integration
+
+**DevOps:** 30% Complete
+- [ ] GitHub Actions workflow
+- [ ] Environment variables configured
+- [ ] Backend deployed
+- [ ] Frontend deployed
+- [ ] Domain configured
+
+**Content:** 50% Complete
+- [x] Copy written
+- [ ] Images optimized
+- [ ] Screenshots added
+- [ ] Favicon added
+- [ ] SEO meta tags
+
+### 💡 Recommendations from Senior Engineer Review
+
+**Architecture:**
+- ✅ Good: Clean component separation
+- ✅ Good: Proper use of React hooks and context
+- ⚠️ Consider: Code splitting for better performance
+- ⚠️ Consider: Lazy loading for images and heavy components
+
+**Testing:**
+- ✅ Good: Test infrastructure in place
+- ✅ Good: Coverage thresholds set
+- ❌ Fix: Test errors preventing clean builds
+- 📝 Add: Integration tests for critical user flows
+
+**Performance:**
+- ⚠️ Not yet measured - Run Lighthouse audit
+- 📝 Consider: Image optimization strategy
+- 📝 Consider: Font loading strategy (Press Start 2P is heavy)
+
+**Security:**
+- ⚠️ Add input validation on all forms
+- ⚠️ Add rate limiting to contact form
+- ⚠️ Implement CORS properly on backend
+- ⚠️ Never expose API keys (use environment variables)
+
+**Accessibility:**
+- ✅ Good: Semantic HTML structure
+- 📝 Audit: Color contrast ratios
+- 📝 Audit: Keyboard navigation
+- 📝 Add: ARIA labels where needed
+
+---
+
+**Last Updated:** 2026-02-06 17:30
+**Status:** 🟡 Active Development - Issues to Address
+**Deadline:** Sunday, February 9, 2026 (3 days remaining)
+**Estimated Time to MVP:** 12-15 hours remaining work
