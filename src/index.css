@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+
+/* CSS Variables for Design System */
+:root {
+  /* Light Mode Colors */
+  --bg-primary: #F0F0F0;
+  --bg-secondary: #E0E0E0;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --accent: #4A9EFF;
+  --accent-hover: #2E7FDD;
+  --success: #4CAF50;
+  --border: #2C2C2C;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* Dark Mode */
+[data-theme='dark'] {
+  --bg-primary: #1A1A1A;
+  --bg-secondary: #2C2C2C;
+  --text-primary: #E0E0E0;
+  --text-secondary: #A0A0A0;
+  --accent: #00D9FF;
+  --accent-hover: #00B8D4;
+  --success: #00FF88;
+  --border: #4A4A4A;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Roboto Mono', monospace;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Headings with Pixel Font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Press Start 2P', cursive;
+  line-height: 1.4;
+}
+
+/* Smooth Transitions */
+a, button, input, textarea {
+  transition: all var(--transition-fast);
+}
+
+/* Focus Styles for Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Pixel Button Base Styles */
+@layer components {
+  .pixel-button {
+    @apply font-pixel text-xs px-6 py-3 cursor-pointer;
+    background: var(--accent);
+    color: white;
+    border: 3px solid var(--border);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .pixel-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 var(--border);
+  }
+
+  .pixel-button:active {
+    transform: translateY(0);
+    box-shadow: 2px 2px 0 var(--border);
+  }
+
+  /* Pixel Card Base Styles */
+  .pixel-card {
+    @apply relative p-6;
+    background: var(--bg-secondary);
+    border: 3px solid var(--border);
+  }
+
+  .pixel-card::before,
+  .pixel-card::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--border);
+  }
+
+  .pixel-card::before {
+    top: -3px;
+    left: -3px;
+  }
+
+  .pixel-card::after {
+    bottom: -3px;
+    right: -3px;
+  }
+
+  /* Pixel Input Base Styles */
+  .pixel-input {
+    @apply font-mono px-3 py-2;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    transition: border-color var(--transition-fast);
+  }
+
+  .pixel-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+}
+
+/* Fade In Animation for Scroll Effects */
+@layer utilities {
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Pixel Art Image Rendering */
+  .pixel-art {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Scrollbar Styling (Pixel Theme) */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border: 2px solid var(--border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Selection Styling */
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+/* Loading Animation */
+@keyframes pixelPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pixel-pulse {
+  animation: pixelPulse 1.5s ease-in-out infinite;
+}
