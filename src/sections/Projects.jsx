@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { ProjectCard } from '../components/common';
+import useScrollAnimation from '../utils/useScrollAnimation';
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [headerRef, headerVisible] = useScrollAnimation();
+  const [filterRef, filterVisible] = useScrollAnimation();
+  const [gridRef, gridVisible] = useScrollAnimation();
 
   const projects = [
     {
       id: 1,
       title: 'MultiGame Platform',
-      category: 'gaming',
+      categories: ['gaming', 'mobile'],
       difficulty: 5,
       description: 'Flutter-based gaming platform featuring multiple mini-games with leaderboards, achievements, and social features. Built for mobile-first experience with smooth animations and offline support.',
       features: [
@@ -25,7 +29,7 @@ const Projects = () => {
     {
       id: 2,
       title: 'HelpDesk Pro',
-      category: 'enterprise',
+      categories: ['enterprise', 'web'],
       difficulty: 4,
       description: 'Enterprise-grade ticketing system with Keycloak authentication, role-based access control, and real-time notifications. Handles complex workflow automation and SLA management.',
       features: [
@@ -42,7 +46,7 @@ const Projects = () => {
     {
       id: 3,
       title: 'MediGuide AI',
-      category: 'ai',
+      categories: ['ai', 'web'],
       difficulty: 4,
       description: 'AI-powered medical assistant chatbot using Grok API for intelligent symptom analysis and health guidance. Features context-aware conversations and medical knowledge base.',
       features: [
@@ -59,7 +63,7 @@ const Projects = () => {
     {
       id: 4,
       title: 'iTeamHub',
-      category: 'mobile',
+      categories: ['mobile'],
       difficulty: 3,
       description: 'Social networking app for university students to connect, share resources, and collaborate on projects. Features event management and study group creation.',
       features: [
@@ -76,7 +80,7 @@ const Projects = () => {
     {
       id: 5,
       title: 'Co-op Platform',
-      category: 'web',
+      categories: ['web'],
       difficulty: 2,
       description: 'Brand collaboration platform connecting businesses with influencers and content creators. Streamlines campaign management and performance tracking.',
       features: [
@@ -94,22 +98,22 @@ const Projects = () => {
 
   const filters = [
     { id: 'all', label: 'All Quests', icon: '⚔️' },
+    { id: 'mobile', label: 'Mobile', icon: '📱' },
+    { id: 'web', label: 'Web', icon: '🌐' },
     { id: 'gaming', label: 'Gaming', icon: '🎮' },
     { id: 'enterprise', label: 'Enterprise', icon: '💼' },
-    { id: 'ai', label: 'AI/ML', icon: '🤖' },
-    { id: 'mobile', label: 'Mobile', icon: '📱' },
-    { id: 'web', label: 'Web', icon: '🌐' }
+    { id: 'ai', label: 'AI/ML', icon: '🤖' }
   ];
 
   const filteredProjects = activeFilter === 'all'
     ? projects
-    : projects.filter(project => project.category === activeFilter);
+    : projects.filter(project => project.categories.includes(activeFilter));
 
   return (
     <section id="projects" className="section-padding">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div ref={headerRef} className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<COMPLETED_QUESTS/>'}
           </h2>
@@ -119,7 +123,7 @@ const Projects = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="mb-8 overflow-x-auto pb-2">
+        <div ref={filterRef} className={`mb-8 overflow-x-auto pb-2 ${filterVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <div className="flex gap-3 justify-center flex-wrap min-w-max px-4 md:px-0">
             {filters.map((filter) => (
               <button
@@ -148,7 +152,7 @@ const Projects = () => {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${gridVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           {filteredProjects.map((project) => (
             <div
               key={project.id}

@@ -1,7 +1,7 @@
 import { Card, Button } from './index';
 
 const ProjectCard = ({ project }) => {
-  const { title, category, difficulty, description, features, techStack, demoUrl, githubUrl, image } = project;
+  const { title, categories, difficulty, description, features, techStack, demoUrl, githubUrl, image } = project;
 
   const getDifficultyStars = (diff) => {
     return '⭐'.repeat(diff);
@@ -25,7 +25,7 @@ const ProjectCard = ({ project }) => {
         <div className="mb-4 w-full h-48 bg-[var(--bg-primary)] border-2 border-[var(--border)] flex items-center justify-center overflow-hidden pixel-corners">
           {/* Placeholder for project screenshot */}
           <div className="text-6xl opacity-50 group-hover:scale-110 transition-transform duration-300">
-            {getCategoryIcon(category)}
+            {getCategoryIcon(categories[0])}
           </div>
         </div>
       )}

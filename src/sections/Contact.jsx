@@ -1,17 +1,23 @@
 import { useState } from 'react';
-import { Card, Button, Input, Textarea } from '../components/common';
+import { Card, Button, Input, Textarea, RatingModal } from '../components/common';
+import useScrollAnimation from '../utils/useScrollAnimation';
 
 const Contact = () => {
+  const [headerRef, headerVisible] = useScrollAnimation();
+  const [formRef, formVisible] = useScrollAnimation();
+  const [infoRef, infoVisible] = useScrollAnimation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
+    rating: 0
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 
   const contactInfo = [
     {
@@ -134,7 +140,8 @@ const Contact = () => {
         name: '',
         email: '',
         subject: '',
-        message: ''
+        message: '',
+        rating: 0
       });
 
       // Clear success message after 5 seconds
@@ -155,11 +162,18 @@ const Contact = () => {
     }
   };
 
+  const handleRating = (rating) => {
+    setFormData(prev => ({
+      ...prev,
+      rating: rating
+    }));
+  };
+
   return (
     <section id="contact" className="section-padding pb-40 mb-20">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div ref={headerRef} className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<CONTACT_ME/>'}
           </h2>
@@ -170,7 +184,8 @@ const Contact = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Contact Form */}
-          <Card>
+          <div ref={formRef} className={formVisible ? 'scroll-visible' : 'scroll-hidden'}>
+            <Card>
             <h3 className="font-pixel text-sm text-[var(--accent)] mb-6">{'> SEND_MESSAGE'}</h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -255,15 +270,33 @@ const Contact = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'SENDING...' : '📤 SEND MESSAGE'}
-              </Button>
+              {/* Rating Display */}
+              {formData.rating > 0 && (
+                <div className="bg-[var(--success)] bg-opacity-20 border-2 border-[var(--success)] px-4 py-3">
+                  <p className="font-mono text-xs text-[var(--success)] text-center">
+                    ⭐ Portfolio rated: {formData.rating}/5 stars
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => setIsRatingModalOpen(true)}
+                >
+                  ⭐ RATE
+                </Button>
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'SENDING...' : '📤 SEND'}
+                </Button>
+              </div>
 
               {/* Status Messages */}
               {submitStatus === 'success' && (
@@ -282,10 +315,11 @@ const Contact = () => {
                 </div>
               )}
             </form>
-          </Card>
+            </Card>
+          </div>
 
           {/* Contact Info & Direct Links */}
-          <div className="space-y-6">
+          <div ref={infoRef} className={`space-y-6 ${infoVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
             {/* Direct Contact Info */}
             <Card>
               <h3 className="font-pixel text-sm text-[var(--accent)] mb-6">{'> DIRECT_CONTACT'}</h3>
@@ -339,6 +373,13 @@ const Contact = () => {
             </Card>
           </div>
         </div>
+
+        {/* Rating Modal */}
+        <RatingModal
+          isOpen={isRatingModalOpen}
+          onClose={() => setIsRatingModalOpen(false)}
+          onRate={handleRating}
+        />
       </div>
     </section>
   );
