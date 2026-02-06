@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -13,24 +14,27 @@ export default {
       },
       colors: {
         // Light mode colors
-        'light-bg-primary': '#F0F0F0',
-        'light-bg-secondary': '#E0E0E0',
-        'light-text-primary': '#1A1A1A',
-        'light-text-secondary': '#4A4A4A',
-        'light-accent': '#4A9EFF',
-        'light-accent-hover': '#2E7FDD',
-        'light-success': '#4CAF50',
-        'light-border': '#2C2C2C',
-
+        'light': {
+          'bg-primary': '#F0F0F0',
+          'bg-secondary': '#E0E0E0',
+          'text-primary': '#1A1A1A',
+          'text-secondary': '#4A4A4A',
+          'accent': '#4A9EFF',
+          'accent-hover': '#2E7FDD',
+          'success': '#4CAF50',
+          'border': '#2C2C2C',
+        },
         // Dark mode colors
-        'dark-bg-primary': '#1A1A1A',
-        'dark-bg-secondary': '#2C2C2C',
-        'dark-text-primary': '#E0E0E0',
-        'dark-text-secondary': '#A0A0A0',
-        'dark-accent': '#00D9FF',
-        'dark-accent-hover': '#00B8D4',
-        'dark-success': '#00FF88',
-        'dark-border': '#4A4A4A',
+        'dark': {
+          'bg-primary': '#1A1A1A',
+          'bg-secondary': '#2C2C2C',
+          'text-primary': '#E0E0E0',
+          'text-secondary': '#A0A0A0',
+          'accent': '#00D9FF',
+          'accent-hover': '#00B8D4',
+          'success': '#00FF88',
+          'border': '#4A4A4A',
+        },
       },
       spacing: {
         'xs': '4px',
@@ -44,5 +48,4 @@ export default {
     },
   },
   plugins: [],
-  darkMode: 'class',
 }
