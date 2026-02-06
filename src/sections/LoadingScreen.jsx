@@ -1,19 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '../components/common';
 
-const loadingTips = [
-  "Tip: Salim tests on potato laptops for maximum compatibility! 🥔",
-  "Tip: Peak productivity happens at 2am with espresso ☕",
-  "Tip: Bug hunting addict since Pascal days 🐛",
-  "Tip: Commits more often than blinking 💻",
-  "Tip: Gaming since Windows XP era 🎮",
-  "Tip: If it runs on a potato, it runs anywhere!",
-  "Tip: Clean code is the only code shipped ✨"
+const loadingFacts = [
+  "Fact: Salim tests on potato laptops for maximum compatibility! 🥔",
+  "Fact: Peak productivity happens at 2am with espresso ☕",
+  "Fact: Bug hunting addict since Pascal days 🐛",
+  "Fact: Commits more often than blinking 💻",
+  "Fact: Gaming since Windows XP era 🎮",
+  "Fact: If it runs on a potato, it runs anywhere!",
+  "Fact: Clean code is the only code shipped ✨"
 ];
 
 const LoadingScreen = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
-  const [currentTip, setCurrentTip] = useState('');
+  const [currentFact, setCurrentFact] = useState('');
   const [showButton, setShowButton] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const startTimeRef = useRef(null);
@@ -24,9 +24,9 @@ const LoadingScreen = ({ onComplete }) => {
     // Always show loading screen (removed localStorage check)
     startTimeRef.current = Date.now();
 
-    // Select random tip
-    const randomTip = loadingTips[Math.floor(Math.random() * loadingTips.length)];
-    setCurrentTip(randomTip);
+    // Select random Fact
+    const randomFact = loadingFacts[Math.floor(Math.random() * loadingFacts.length)];
+    setCurrentFact(randomFact);
 
     // Simulate loading progress
     progressIntervalRef.current = setInterval(() => {
@@ -82,7 +82,7 @@ const LoadingScreen = ({ onComplete }) => {
             {'<LOADING/>'}
           </h1>
           <div className="font-mono text-sm text-[var(--text-secondary)] animate-pulse">
-            {currentTip}
+            {currentFact}
           </div>
         </div>
 

@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../common/Button';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Navbar component with responsive design, mobile hamburger menu, and dark mode toggle
  */
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  // Check for saved theme preference or default to light mode
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  const { theme, toggleTheme } = useTheme();
 
   // Handle scroll effect
   useEffect(() => {
@@ -30,18 +20,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-
-    if (!isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
 
   // Navigation links
   const navLinks = [
@@ -86,11 +64,11 @@ const Navbar = () => {
 
             {/* Dark Mode Toggle */}
             <button
-              onClick={toggleDarkMode}
+              onClick={toggleTheme}
               className="w-12 h-12 flex items-center justify-center border-3 border-[var(--border)] bg-[var(--bg-secondary)] hover:bg-[var(--accent)] hover:border-[var(--accent)] transition-all group"
               aria-label="Toggle dark mode"
             >
-              {isDarkMode ? (
+              {theme === 'dark' ? (
                 // Sun icon
                 <svg
                   className="w-5 h-5 text-[var(--text-primary)] group-hover:text-white transition-colors"
@@ -128,11 +106,11 @@ const Navbar = () => {
           <div className="md:hidden flex items-center gap-4">
             {/* Mobile Dark Mode Toggle */}
             <button
-              onClick={toggleDarkMode}
+              onClick={toggleTheme}
               className="w-10 h-10 flex items-center justify-center border-3 border-[var(--border)] bg-[var(--bg-secondary)]"
               aria-label="Toggle dark mode"
             >
-              {isDarkMode ? (
+              {theme === 'dark' ? (
                 <svg className="w-4 h-4 text-[var(--text-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>

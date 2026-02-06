@@ -1,6 +1,11 @@
 import { Card } from '../components/common';
+import useScrollAnimation from '../utils/useScrollAnimation';
 
 const About = () => {
+  const [headerRef, headerVisible] = useScrollAnimation();
+  const [statsRef, statsVisible] = useScrollAnimation();
+  const [traitsRef, traitsVisible] = useScrollAnimation();
+  const [eduRef, eduVisible] = useScrollAnimation();
   const stats = [
     { name: 'FRONTEND', level: 8, skills: ['React', 'Flutter', 'Tailwind CSS'] },
     { name: 'BACKEND', level: 8, skills: ['Node.js', 'Python', 'Flask', 'Express'] },
@@ -36,16 +41,16 @@ const About = () => {
     <section id="about" className="section-padding bg-[var(--bg-secondary)]">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div ref={headerRef} className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<ABOUT_ME/>'}
           </h2>
           <p className="font-mono text-sm text-[var(--text-secondary)] max-w-2xl mx-auto">
-            Level 24 Developer | Quest Completion Rate: 94% | Experience: 3 Years
+            Level 24 Developer | Quest Completion Rate: 94% | Experience: 6 Years
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div ref={statsRef} className={`grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 ${statsVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           {/* Left Column - Portrait & Bio */}
           <div className="lg:col-span-1">
             <Card className="text-center">
@@ -154,7 +159,7 @@ const About = () => {
         </div>
 
         {/* Special Traits */}
-        <div className="mb-12">
+        <div ref={traitsRef} className={`mb-12 ${traitsVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <h3 className="font-pixel text-sm text-[var(--accent)] mb-6 text-center">{'> SPECIAL_TRAITS'}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {specialTraits.map((trait, index) => (
@@ -172,7 +177,7 @@ const About = () => {
         </div>
 
         {/* Education */}
-        <div>
+        <div ref={eduRef} className={eduVisible ? 'scroll-visible' : 'scroll-hidden'}>
           <h3 className="font-pixel text-sm text-[var(--accent)] mb-6 text-center">{'> EDUCATION'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {education.map((edu, index) => (

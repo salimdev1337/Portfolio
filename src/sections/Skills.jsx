@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { Card } from '../components/common';
+import useScrollAnimation from '../utils/useScrollAnimation';
 
 const Skills = () => {
   const [expandedCategory, setExpandedCategory] = useState('frontend');
+  const [headerRef, headerVisible] = useScrollAnimation();
+  const [desktopRef, desktopVisible] = useScrollAnimation();
+  const [mobileRef, mobileVisible] = useScrollAnimation();
+  const [statsRef, statsVisible] = useScrollAnimation();
 
   const skillCategories = [
     {
@@ -79,7 +84,7 @@ const Skills = () => {
     <section id="skills" className="section-padding bg-[var(--bg-secondary)]">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div ref={headerRef} className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<SKILL_TREE/>'}
           </h2>
@@ -105,7 +110,7 @@ const Skills = () => {
         </div>
 
         {/* Desktop View - Skill Tree Grid */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div ref={desktopRef} className={`hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto ${desktopVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           {skillCategories.map((category) => (
             <Card key={category.id} className="hover:transform hover:scale-105 transition-transform duration-200">
               <div className="flex items-center gap-3 mb-4">
@@ -155,7 +160,7 @@ const Skills = () => {
         </div>
 
         {/* Mobile View - Accordion */}
-        <div className="md:hidden space-y-4 max-w-2xl mx-auto">
+        <div ref={mobileRef} className={`md:hidden space-y-4 max-w-2xl mx-auto ${mobileVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           {skillCategories.map((category) => (
             <div key={category.id}>
               <button
@@ -215,7 +220,7 @@ const Skills = () => {
         </div>
 
         {/* Stats Summary */}
-        <div className="mt-12 max-w-4xl mx-auto">
+        <div ref={statsRef} className={`mt-12 max-w-4xl mx-auto ${statsVisible ? 'scroll-visible' : 'scroll-hidden'}`}>
           <Card className="text-center">
             <h3 className="font-pixel text-sm text-[var(--accent)] mb-4">{'> OVERALL_STATS'}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
