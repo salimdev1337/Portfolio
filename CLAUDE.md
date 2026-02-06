@@ -238,19 +238,76 @@ refactor: simplify state management in navbar
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
+### 🚨 CRITICAL GIT RULES (Claude Must Follow)
+
+#### Before Every Push
+**ALWAYS do these steps before pushing to remote:**
+
+1. **ASK USER FOR PERMISSION**
+   ```
+   "Ready to push to remote. Should I proceed?"
+   ```
+   - NEVER push without explicit user confirmation
+   - Explain what will be pushed (branch name, commits)
+
+2. **REBASE ALL COMMITS INTO ONE**
+   ```bash
+   # Count commits on current branch
+   git log --oneline main..HEAD
+
+   # Interactive rebase to squash all commits
+   git rebase -i main
+
+   # Or use reset + commit approach:
+   git reset --soft main
+   git commit -m "feat: descriptive message of all changes"
+   ```
+   - Keep commit history clean
+   - One logical feature = one commit
+   - Makes it easy to revert if needed
+
+3. **VERIFY BEFORE PUSHING**
+   ```bash
+   # Check what will be pushed
+   git log origin/main..HEAD
+
+   # Verify branch is clean
+   git status
+   ```
+
+4. **PUSH WITH CONFIRMATION**
+   ```bash
+   git push origin <branch-name>
+   ```
+
+#### Example Workflow
+```bash
+# User: "Let's push this to GitHub"
+# Claude: "Ready to push feature/navbar branch with 5 commits.
+#          Should I rebase them into one commit first?"
+# User: "Yes"
+# Claude: Rebases commits
+# Claude: "Rebased into 1 commit: 'feat: add navbar component'.
+#          Ready to push. Should I proceed?"
+# User: "Yes"
+# Claude: Pushes to remote
+```
+
 ### Pull Request Workflow
 1. Create feature branch from `main`
 2. Make changes with descriptive commits
-3. Push feature branch to GitHub
-4. Create PR with description including:
+3. **Rebase all commits into one before pushing**
+4. **Ask user permission before pushing**
+5. Push feature branch to GitHub
+6. Create PR with description including:
    - What changed
    - Why it changed
    - Screenshots (if UI changes)
    - Testing performed
-5. Self-review code
-6. Merge to `main` (squash and merge)
-7. Delete feature branch
-8. Automated deployment triggers
+7. Self-review code
+8. Merge to `main` (squash and merge)
+9. Delete feature branch
+10. Automated deployment triggers
 
 ---
 
