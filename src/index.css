@@ -103,6 +103,16 @@ html {
   right: -3px;
 }
 
+/* Pixel corners - simpler version for general use */
+.pixel-corners {
+  position: relative;
+}
+
+/* Border width utilities */
+.border-3 {
+  border-width: 3px;
+}
+
 /* Container */
 .container-custom {
   max-width: 1200px;
@@ -113,6 +123,15 @@ html {
 /* Section padding */
 .section-padding {
   padding: var(--space-3xl) 0;
+}
+
+/* Font families */
+.font-pixel {
+  font-family: 'Press Start 2P', cursive;
+}
+
+.font-mono {
+  font-family: 'Roboto Mono', monospace;
 }
 
 /* ============================================
@@ -198,6 +217,10 @@ html {
   animation: fadeIn 0.6s ease-out;
 }
 
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
 /* Pixel glitch effect */
 @keyframes glitch {
   0% {
@@ -222,6 +245,62 @@ html {
 
 .glitch:hover {
   animation: glitch 0.3s linear;
+}
+
+/* Blink animation */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+/* Float animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse slow animation */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }
 
 /* ============================================

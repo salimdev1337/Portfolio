@@ -55,8 +55,8 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[var(--bg-secondary)] border-t-3 border-[var(--border)] mt-20">
-      <div className="container-custom py-12">
+    <footer className="bg-[var(--bg-secondary)] border-t-3 border-[var(--border)] pt-20">
+      <div className="container-custom pb-16">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand Section */}
