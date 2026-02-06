@@ -60,6 +60,7 @@ task.md
 TODO.md
 NOTES.md
 *.draft.md
+IMPLEMENTATION_PLAN.md
 
 # Temporary files
 *.tmp
@@ -77,7 +78,7 @@ env/
 venv/
 ENV/
 .venv
-
+.vscode
 # Backend specific
 backend/.env
 backend/venv/

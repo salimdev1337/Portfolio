@@ -1,0 +1,17 @@
+-r requirements.txt
+
+# Testing
+pytest==8.0.0
+pytest-asyncio==0.23.4
+pytest-cov==4.1.0
+httpx==0.26.0  # For TestClient
+
+# Code Quality
+black==24.2.0
+flake8==7.0.0
+mypy==1.8.0
+isort==5.13.2
+
+# Security Scanning
+bandit==1.7.6
+safety==3.0.1
