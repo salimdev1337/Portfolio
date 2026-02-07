@@ -1,0 +1,172 @@
+{
+  "name": "Portfolio Contact Form - Resend",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "portfolio-contact",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "portfolio-contact-webhook"
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer re_Qo7uexRS_94tNyRPV68ZNTz77PAega33s"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"from\": \"Portfolio <onboarding@resend.dev>\",\n  \"to\": [\"salimmtiri17@gmail.com\"],\n  \"subject\": \"New Contact: {{ $json.body.body.form_data.subject }}\",\n  \"text\": \"New Contact Form Submission\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\nFrom: {{ $json.body.body.form_data.name }}\\nEmail: {{ $json.body.body.form_data.email }}\\nSubject: {{ $json.body.body.form_data.subject }}\\nRating: {{ $json.body.body.form_data.rating }}/5\\nTime: {{ $json.body.body.timestamp }}\\nRequest ID: {{ $json.body.body.request_id }}\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\nMessage:\\n{{ $json.body.body.form_data.message }}\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nReply directly to respond to {{ $json.body.body.form_data.name }}\",\n  \"reply_to\": \"{{ $json.body.body.form_data.email }}\"\n}",
+        "options": {}
+      },
+      "id": "send-notification",
+      "name": "Send Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [560, 180]
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer re_Qo7uexRS_94tNyRPV68ZNTz77PAega33s"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"from\": \"Salim Mtiri <onboarding@resend.dev>\",\n  \"to\": [\"{{ $json.body.body.form_data.email }}\"],\n  \"subject\": \"Thanks for reaching out!\",\n  \"text\": \"Hi {{ $json.body.body.form_data.name }},\\n\\nThank you for contacting me through my portfolio!\\n\\nI received your message about {{ $json.body.body.form_data.subject }} and will get back to you as soon as possible.\\n\\nI typically respond within 24-48 hours. If urgent, reach me at salimmtiri17@gmail.com.\\n\\nBest regards,\\nSalim Mtiri\\nFull-Stack Developer\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nPortfolio: https://salimdev1337.github.io/Portfolio\\nGitHub: https://github.com/salimdev1337\",\n  \"reply_to\": \"salimmtiri17@gmail.com\"\n}",
+        "options": {}
+      },
+      "id": "send-autoresponse",
+      "name": "Send Auto-Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [560, 420]
+    },
+    {
+      "parameters": {
+        "url": "YOUR_SLACK_WEBHOOK_URL",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"blocks\": [\n    {\n      \"type\": \"header\",\n      \"text\": {\n        \"type\": \"plain_text\",\n        \"text\": \"New Portfolio Contact\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"fields\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*From:*\\n{{ $json.body.body.form_data.name }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Email:*\\n{{ $json.body.body.form_data.email }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Subject:*\\n{{ $json.body.body.form_data.subject }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Rating:*\\n{{ $json.body.body.form_data.rating }}/5\"\n        }\n      ]\n    },\n    {\n      \"type\": \"divider\"\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Message:*\\n{{ $json.body.body.form_data.message }}\"\n      }\n    },\n    {\n      \"type\": \"context\",\n      \"elements\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"Time: {{ $json.body.body.timestamp }} | ID: {{ $json.body.body.request_id }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "send-slack",
+      "name": "Send Slack Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [560, 600]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}"
+      },
+      "id": "webhook-response",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send Notification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Auto-Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Auto-Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-07T16:30:00.000Z",
+  "versionId": "5"
+}

@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     # n8n Webhook
     n8n_webhook_url: HttpUrl = Field(..., validation_alias="N8N_WEBHOOK_URL")
     n8n_timeout: int = Field(10, ge=1, le=30)  # seconds
+    n8n_webhook_secret: str = Field("", validation_alias="N8N_WEBHOOK_SECRET")  # Optional signing secret
 
     # Logging
     log_level: str = Field("INFO", validation_alias="LOG_LEVEL")
