@@ -42,8 +42,10 @@ class ContactRequest(BaseModel):
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
-        """Validate name contains only letters, spaces, and hyphens."""
-        if not re.match(r"^[a-zA-Z\s\-\']+$", v):
+        """Validate name: letters (Unicode), spaces, hyphens, apostrophes only."""
+        # Allow Unicode letters, spaces, hyphens, and apostrophes
+        # \w includes Unicode letters and digits, so we exclude digits explicitly
+        if not re.match(r"^[\w\s\-']+$", v, re.UNICODE) or re.search(r"\d", v):
             raise ValueError("Name must contain only letters, spaces, hyphens, and apostrophes")
         return v.strip()
 
