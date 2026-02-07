@@ -32,9 +32,7 @@ const Textarea = ({
         className={`pixel-input w-full resize-none ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
-      {error && (
-        <p className="text-red-500 text-xs mt-1 font-mono">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-xs mt-1 font-mono">{error}</p>}
     </div>
   );
 };

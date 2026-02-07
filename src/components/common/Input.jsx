@@ -44,9 +44,7 @@ const Input = ({
         required={required}
         {...props}
       />
-      {error && (
-        <p className="mt-2 text-red-500 text-xs font-mono">{error}</p>
-      )}
+      {error && <p className="mt-2 text-red-500 text-xs font-mono">{error}</p>}
     </div>
   );
 };
@@ -86,9 +84,7 @@ export const Textarea = ({
         rows={rows}
         {...props}
       />
-      {error && (
-        <p className="mt-2 text-red-500 text-xs font-mono">{error}</p>
-      )}
+      {error && <p className="mt-2 text-red-500 text-xs font-mono">{error}</p>}
     </div>
   );
 };

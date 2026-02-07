@@ -2,6 +2,7 @@
 Advanced input validation and sanitization services.
 Defense against XSS, SQL injection, and malicious input.
 """
+
 import re
 import bleach
 from typing import Dict, Any
@@ -32,10 +33,7 @@ class InputValidator:
         """
         # Remove HTML tags
         clean_text = bleach.clean(
-            text,
-            tags=ALLOWED_TAGS,
-            attributes=ALLOWED_ATTRIBUTES,
-            strip=True
+            text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip=True
         )
 
         return clean_text.strip()
@@ -55,8 +53,8 @@ class InputValidator:
         # Common SQL injection patterns
         sql_patterns = [
             r"('\s*(OR|AND)\s*')",  # ' OR ' / ' AND '
-            r"(--|#|\/\*|\*\/)",     # SQL comments
-            r"(;|\|\||&&)",          # Statement separators
+            r"(--|#|\/\*|\*\/)",  # SQL comments
+            r"(;|\|\||&&)",  # Statement separators
             r"(\bUNION\b.*\bSELECT\b)",  # UNION SELECT
             r"(\bDROP\b|\bDELETE\b|\bINSERT\b)",  # Dangerous keywords
             r"(\bEXEC\b|\bEXECUTE\b)",  # Execute commands
@@ -67,7 +65,7 @@ class InputValidator:
             if re.search(pattern, text_upper, re.IGNORECASE):
                 logger.warning(
                     "Potential SQL injection attempt detected",
-                    extra={"pattern": pattern, "text_sample": text[:50]}
+                    extra={"pattern": pattern, "text_sample": text[:50]},
                 )
                 return False
 
@@ -98,7 +96,7 @@ class InputValidator:
             if re.search(pattern, text_lower, re.IGNORECASE):
                 logger.warning(
                     "Potential XSS attempt detected",
-                    extra={"pattern": pattern, "text_sample": text[:50]}
+                    extra={"pattern": pattern, "text_sample": text[:50]},
                 )
                 return False
 
@@ -136,7 +134,7 @@ class InputValidator:
         return sanitized
 
     @staticmethod
-    def validate_email_domain(email: str, blocked_domains: list = None) -> bool: # type: ignore
+    def validate_email_domain(email: str, blocked_domains: list = None) -> bool:  # type: ignore
         """
         Validate email domain against blocklist.
 

@@ -1,6 +1,7 @@
 """
 Security utilities for webhook signature verification and HMAC generation.
 """
+
 import hmac
 import hashlib
 import secrets
@@ -8,10 +9,7 @@ from typing import Dict, Any
 import json
 
 
-def generate_webhook_signature(
-    payload: Dict[str, Any],
-    secret: str
-) -> str:
+def generate_webhook_signature(payload: Dict[str, Any], secret: str) -> str:
     """
     Generate HMAC-SHA256 signature for webhook payload.
 
@@ -33,25 +31,17 @@ def generate_webhook_signature(
         return ""
 
     # Convert payload to canonical JSON string
-    payload_string = json.dumps(payload, sort_keys=True, separators=(',', ':'))
-    payload_bytes = payload_string.encode('utf-8')
-    secret_bytes = secret.encode('utf-8')
+    payload_string = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    payload_bytes = payload_string.encode("utf-8")
+    secret_bytes = secret.encode("utf-8")
 
     # Generate HMAC-SHA256 signature
-    signature = hmac.new(
-        secret_bytes,
-        payload_bytes,
-        hashlib.sha256
-    ).hexdigest()
+    signature = hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
 
     return signature
 
 
-def verify_webhook_signature(
-    payload: Dict[str, Any],
-    signature: str,
-    secret: str
-) -> bool:
+def verify_webhook_signature(payload: Dict[str, Any], signature: str, secret: str) -> bool:
     """
     Verify webhook signature matches the payload.
 

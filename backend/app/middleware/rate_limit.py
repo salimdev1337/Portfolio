@@ -2,6 +2,7 @@
 Rate limiting configuration and utilities.
 Prevents abuse and DoS attacks.
 """
+
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from fastapi import Request
@@ -48,5 +49,5 @@ def create_limiter(storage_uri: str = "memory://") -> Limiter:
         key_func=get_request_identifier,
         storage_uri=storage_uri,
         headers_enabled=True,  # Send X-RateLimit-* headers
-        strategy="fixed-window"  # Fixed time window strategy
+        strategy="fixed-window",  # Fixed time window strategy
     )

@@ -2,6 +2,7 @@
 Application configuration management.
 Uses pydantic-settings for type-safe environment variables.
 """
+
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, HttpUrl
@@ -11,10 +12,7 @@ class Settings(BaseSettings):
     """Application settings from environment variables."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="ignore"
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
     )
 
     # API Configuration
@@ -32,7 +30,7 @@ class Settings(BaseSettings):
     secret_key: str = Field(..., validation_alias="SECRET_KEY", min_length=32)
     allowed_origins: str = Field(
         default="http://localhost:5173,http://localhost:3000,https://*.github.io",
-        validation_alias="ALLOWED_ORIGINS"
+        validation_alias="ALLOWED_ORIGINS",
     )
 
     # Rate Limiting
@@ -42,7 +40,9 @@ class Settings(BaseSettings):
     # n8n Webhook
     n8n_webhook_url: HttpUrl = Field(..., validation_alias="N8N_WEBHOOK_URL")
     n8n_timeout: int = Field(10, ge=1, le=30)  # seconds
-    n8n_webhook_secret: str = Field("", validation_alias="N8N_WEBHOOK_SECRET")  # Optional signing secret
+    n8n_webhook_secret: str = Field(
+        "", validation_alias="N8N_WEBHOOK_SECRET"
+    )  # Optional signing secret
 
     # Logging
     log_level: str = Field("INFO", validation_alias="LOG_LEVEL")

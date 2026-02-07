@@ -1,6 +1,7 @@
 """
 Webhook health check endpoint for monitoring n8n connectivity.
 """
+
 import logging
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
@@ -45,7 +46,7 @@ async def check_webhook_health():
         "request_id": generate_request_id(),
         "timestamp": start_time.isoformat(),
         "test": True,
-        "message": "Health check ping from portfolio backend"
+        "message": "Health check ping from portfolio backend",
     }
 
     # Add signature if configured
@@ -57,9 +58,7 @@ async def check_webhook_health():
     try:
         async with httpx.AsyncClient(timeout=settings.n8n_timeout) as client:
             response = await client.post(
-                str(settings.n8n_webhook_url),
-                json=test_payload,
-                headers=headers
+                str(settings.n8n_webhook_url), json=test_payload, headers=headers
             )
 
             end_time = datetime.now(timezone.utc)
@@ -71,8 +70,7 @@ async def check_webhook_health():
             return {
                 "healthy": is_healthy,
                 "webhook_url": str(settings.n8n_webhook_url).replace(
-                    settings.n8n_webhook_url.path or "",
-                    "/webhook/***"  # Mask path for security
+                    settings.n8n_webhook_url.path or "", "/webhook/***"  # Mask path for security
                 ),
                 "response_time_ms": response_time_ms,
                 "status_code": response.status_code,
@@ -80,8 +78,8 @@ async def check_webhook_health():
                 "details": {
                     "signature_enabled": bool(settings.n8n_webhook_secret),
                     "timeout_seconds": settings.n8n_timeout,
-                    "environment": settings.environment
-                }
+                    "environment": settings.environment,
+                },
             }
 
     except httpx.TimeoutException as e:
@@ -96,8 +94,8 @@ async def check_webhook_health():
             "details": {
                 "signature_enabled": bool(settings.n8n_webhook_secret),
                 "timeout_seconds": settings.n8n_timeout,
-                "environment": settings.environment
-            }
+                "environment": settings.environment,
+            },
         }
 
     except httpx.RequestError as e:
@@ -112,16 +110,13 @@ async def check_webhook_health():
             "details": {
                 "signature_enabled": bool(settings.n8n_webhook_secret),
                 "timeout_seconds": settings.n8n_timeout,
-                "environment": settings.environment
-            }
+                "environment": settings.environment,
+            },
         }
 
     except Exception as e:
         logger.exception("Unexpected error in webhook health check")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Health check failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
 
 @router.get("/webhook/config", response_model=Dict[str, Any])
@@ -148,5 +143,5 @@ async def get_webhook_config():
         "timeout_seconds": settings.n8n_timeout,
         "rate_limit_per_hour": settings.rate_limit_per_hour,
         "environment": settings.environment,
-        "api_version": settings.api_version
+        "api_version": settings.api_version,
     }

@@ -15,25 +15,17 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
 
   const CHEAT_CODE = 'BRINGITON';
 
-  const activateCheat = () => {
-    setCheatActivated(true);
-    setRating(5);
-    setPoliceLights(true);
-
-    // Play police lights animation for 3 seconds
-    setTimeout(() => {
-      setPoliceLights(false);
-    }, 3000);
-  };
-
-  // Check cheat code when input changes
+  // Manage police lights effect
   useEffect(() => {
-    if (cheatInput.toUpperCase() === CHEAT_CODE) {
-      activateCheat();
+    if (policeLights) {
+      const timer = setTimeout(() => {
+        setPoliceLights(false);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [cheatInput]);
+  }, [policeLights]);
 
-  const handleStarClick = (value) => {
+  const handleStarClick = value => {
     setRating(value);
     setCheatActivated(false);
   };
@@ -58,8 +50,16 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
     setPoliceLights(false);
   };
 
-  const handleCheatInputChange = (e) => {
-    setCheatInput(e.target.value);
+  const handleCheatInputChange = e => {
+    const value = e.target.value;
+    setCheatInput(value);
+
+    // Check cheat code on input change
+    if (value.toUpperCase() === CHEAT_CODE && !cheatActivated) {
+      setCheatActivated(true);
+      setRating(5);
+      setPoliceLights(true);
+    }
   };
 
   if (!isOpen) return null;
@@ -88,7 +88,7 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
 
         {/* Star Rating */}
         <div className="flex justify-center gap-4 mb-6">
-          {[1, 2, 3, 4, 5].map((star) => {
+          {[1, 2, 3, 4, 5].map(star => {
             const isActive = star <= (hoverRating || rating);
             const isPoliceLight = policeLights && star <= 5;
 
@@ -135,7 +135,10 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
         {/* GTA Cheat Code Input */}
         {!cheatActivated && (
           <div className="mb-4">
-            <label htmlFor="cheat-code" className="font-pixel text-[10px] text-[var(--accent)] mb-2 block text-center">
+            <label
+              htmlFor="cheat-code"
+              className="font-pixel text-[10px] text-[var(--accent)] mb-2 block text-center"
+            >
               🎮 GTA SAN ANDREAS CHEAT CODE 🎮
             </label>
             <input
@@ -160,11 +163,7 @@ const RatingModal = ({ isOpen, onClose, onRate }) => {
 
         {/* Submit Button */}
         <div className="flex gap-3">
-          <Button
-            onClick={handleClose}
-            variant="secondary"
-            className="flex-1"
-          >
+          <Button onClick={handleClose} variant="secondary" className="flex-1">
             CANCEL
           </Button>
           <Button

@@ -1,8 +1,18 @@
 """
 Tests for contact form endpoint.
 """
+
 import pytest
-from fastapi.testclient import TestClient
+
+
+@pytest.fixture
+def mock_n8n_webhook(monkeypatch):
+    """Mock n8n webhook for contact form tests."""
+
+    async def mock_send(*args, **kwargs):
+        return {"success": True}
+
+    monkeypatch.setattr("app.services.webhook.WebhookClient.send_contact_form", mock_send)
 
 
 def test_contact_form_success(client, valid_contact_data, mock_n8n_webhook):
@@ -22,7 +32,7 @@ def test_contact_form_validation_name_too_short(client):
         "email": "test@example.com",
         "subject": "Test",
         "message": "Test message here",
-        "rating": 5
+        "rating": 5,
     }
 
     response = client.post("/api/contact", json=data)
@@ -36,7 +46,7 @@ def test_contact_form_validation_invalid_email(client):
         "email": "not-an-email",
         "subject": "Test",
         "message": "Test message here",
-        "rating": 5
+        "rating": 5,
     }
 
     response = client.post("/api/contact", json=data)
@@ -50,7 +60,7 @@ def test_contact_form_xss_attempt(client, mock_n8n_webhook):
         "email": "test@example.com",
         "subject": "Test",
         "message": "Message with <script>alert('xss')</script>",
-        "rating": 5
+        "rating": 5,
     }
 
     response = client.post("/api/contact", json=data)

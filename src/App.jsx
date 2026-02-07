@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { Navbar, Footer } from './components/layout';
-import { LoadingScreen, Hero, About, Projects, Skills, Contact } from './sections';
+import {
+  LoadingScreen,
+  Hero,
+  About,
+  Projects,
+  Skills,
+  Contact,
+} from './sections';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
