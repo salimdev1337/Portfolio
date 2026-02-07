@@ -128,17 +128,29 @@ const Contact = () => {
     setSubmitStatus(null);
 
     try {
-      // TODO: Replace with actual API endpoint
-      // const response = await fetch('API_ENDPOINT', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(formData),
-      // });
+      // Get API URL from environment variables
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call backend API
+      const response = await fetch(`${apiUrl}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim(),
+          rating: formData.rating,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to send message');
+      }
 
       // Success
       setSubmitStatus('success');
