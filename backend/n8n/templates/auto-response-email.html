@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanks for reaching out!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #F0F0F0;
+            color: #1A1A1A;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border: 3px solid #4A9EFF;
+            box-shadow: 8px 8px 0 rgba(74, 158, 255, 0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A9EFF 0%, #2E7FDD 100%);
+            color: #FFFFFF;
+            padding: 32px 24px;
+            text-align: center;
+            border-bottom: 3px solid #2E7FDD;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+            margin-bottom: 8px;
+        }
+
+        .header .emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .content {
+            padding: 32px 24px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2E7FDD;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            color: #4A4A4A;
+            margin-bottom: 24px;
+        }
+
+        .info-box {
+            background-color: #E3F2FD;
+            border-left: 4px solid #4A9EFF;
+            padding: 16px;
+            margin: 24px 0;
+        }
+
+        .info-box-title {
+            color: #2E7FDD;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .info-field {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #4A9EFF;
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #4A9EFF 0%, #2E7FDD 100%);
+            color: #FFFFFF;
+            padding: 20px;
+            text-align: center;
+            margin: 24px 0;
+            border: 3px solid #2E7FDD;
+        }
+
+        .highlight-box strong {
+            font-size: 18px;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4A9EFF, transparent);
+            margin: 24px 0;
+        }
+
+        .signature {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #E0E0E0;
+        }
+
+        .signature-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2E7FDD;
+            margin-bottom: 4px;
+        }
+
+        .signature-title {
+            color: #4A4A4A;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #4A9EFF;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .social-link:hover {
+            color: #2E7FDD;
+            text-decoration: underline;
+        }
+
+        .footer {
+            background-color: #F5F5F5;
+            padding: 24px;
+            text-align: center;
+            border-top: 3px solid #E0E0E0;
+            font-size: 12px;
+            color: #808080;
+        }
+
+        .footer a {
+            color: #4A9EFF;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .pixel-decoration {
+            text-align: center;
+            font-size: 24px;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="emoji">✨</div>
+            <h1>MESSAGE RECEIVED!</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                Hi {{ $json.name }},
+            </div>
+
+            <div class="message">
+                Thank you for reaching out through my portfolio! Your message has been successfully received, and I'm excited to connect with you.
+            </div>
+
+            <!-- Submission Details -->
+            <div class="info-box">
+                <div class="info-box-title">📋 Your Submission Details</div>
+                <div class="info-field">
+                    <span class="info-label">Subject:</span> {{ $json.subject }}
+                </div>
+                <div class="info-field">
+                    <span class="info-label">Received:</span> {{ $json.timestamp }}
+                </div>
+                <div class="info-field">
+                    <span class="info-label">Reference ID:</span> {{ $json.request_id }}
+                </div>
+            </div>
+
+            <!-- Response Time -->
+            <div class="highlight-box">
+                ⏱️ <strong>I typically respond within 24-48 hours</strong>
+            </div>
+
+            <div class="message">
+                I personally review every message and will get back to you as soon as possible. If your inquiry is urgent or time-sensitive, feel free to reach me directly at:
+            </div>
+
+            <div style="text-align: center; margin: 24px 0;">
+                <a href="mailto:salimmtiri17@gmail.com" style="color: #4A9EFF; font-weight: bold; font-size: 16px; text-decoration: none;">
+                    📧 salimmtiri17@gmail.com
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="pixel-decoration">
+                🎮 💻 🐛 ☕
+            </div>
+
+            <!-- Signature -->
+            <div class="signature">
+                <div class="signature-name">Salim Mtiri</div>
+                <div class="signature-title">Full-Stack Developer | Bug Hunter | Retro Gaming Enthusiast</div>
+
+                <div class="social-links">
+                    <a href="https://salimdev1337.github.io/Portfolio" class="social-link">
+                        🌐 Portfolio
+                    </a>
+                    <a href="https://github.com/salimdev1337" class="social-link">
+                        💼 GitHub
+                    </a>
+                    <a href="https://linkedin.com/in/salimmtiri" class="social-link">
+                        👔 LinkedIn
+                    </a>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; padding: 16px; background-color: #FFF9E6; border-left: 4px solid: #FFD700; font-size: 13px;">
+                <strong>💡 Pro Tip:</strong> While you wait, feel free to explore my portfolio to see my latest projects, skills, and the retro pixel art theme I've built! There might even be a few easter eggs hidden around... 🎮
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This is an automated response from Salim's portfolio contact form.</p>
+            <p style="margin-top: 8px;">
+                You're receiving this because you submitted a message through
+                <a href="https://salimdev1337.github.io/Portfolio">salimdev1337.github.io/Portfolio</a>
+            </p>
+            <p style="margin-top: 16px; opacity: 0.7;">
+                Built with ❤️ using React, FastAPI, and n8n automation
+            </p>
+            <p style="margin-top: 8px; font-size: 10px;">
+                © 2026 Salim Mtiri. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

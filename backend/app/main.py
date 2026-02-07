@@ -13,7 +13,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.config import settings
-from app.routes import contact, health
+from app.routes import contact, health, webhook_health
 from app.utils.logger import setup_logging
 from app.utils.exceptions import WebhookError
 
@@ -144,6 +144,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 # Include routers
 app.include_router(health.router, prefix="", tags=["Health"])
 app.include_router(contact.router, prefix="/api", tags=["Contact"])
+app.include_router(webhook_health.router, prefix="/api", tags=["Webhook"])
 
 
 # Root endpoint

@@ -8,6 +8,7 @@ from pydantic import HttpUrl
 from datetime import datetime, timezone
 
 from app.utils.exceptions import WebhookError
+from app.utils.security import generate_webhook_signature
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,16 @@ class WebhookClient:
             }
         }
 
+        # Generate webhook signature if secret is configured
+        headers = {}
+        if settings.n8n_webhook_secret:
+            signature = generate_webhook_signature(payload, settings.n8n_webhook_secret)
+            headers["X-Webhook-Signature"] = signature
+            logger.debug(
+                "Generated webhook signature",
+                extra={"request_id": request_id, "signature": signature[:8] + "..."}
+            )
+
         logger.info(
             "Sending contact form to n8n webhook",
             extra={"request_id": request_id, "webhook_url": self.webhook_url}
@@ -83,7 +94,8 @@ class WebhookClient:
             try:
                 response = await self.client.post(
                     self.webhook_url,
-                    json=payload
+                    json=payload,
+                    headers=headers
                 )
 
                 # Check response status

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Portfolio Contact</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1A1A1A;
+            color: #E0E0E0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #2C2C2C;
+            border: 3px solid #00D9FF;
+            box-shadow: 8px 8px 0 rgba(0, 217, 255, 0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #00D9FF 0%, #00B8D4 100%);
+            color: #1A1A1A;
+            padding: 24px;
+            text-align: center;
+            border-bottom: 3px solid #00B8D4;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 32px 24px;
+        }
+
+        .alert-box {
+            background-color: #00D9FF;
+            color: #1A1A1A;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-left: 4px solid #00FF88;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background-color: #1A1A1A;
+            border: 2px solid #4A4A4A;
+        }
+
+        .section-title {
+            color: #00D9FF;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field-label {
+            color: #00FF88;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .field-value {
+            color: #E0E0E0;
+        }
+
+        .message-box {
+            background-color: #0A0A0A;
+            padding: 16px;
+            border-left: 3px solid #00D9FF;
+            margin-top: 16px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .star {
+            color: #FFD700;
+            font-size: 16px;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00D9FF, transparent);
+            margin: 24px 0;
+        }
+
+        .footer {
+            background-color: #1A1A1A;
+            padding: 24px;
+            text-align: center;
+            border-top: 3px solid #4A4A4A;
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: #00D9FF;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .action-button {
+            display: inline-block;
+            background-color: #00D9FF;
+            color: #1A1A1A;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 3px solid #00B8D4;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: #00FF88;
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0 #00D9FF;
+        }
+
+        .metadata {
+            font-size: 11px;
+            color: #808080;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 NEW CONTACT RECEIVED</h1>
+            <div class="subtitle">Portfolio Contact Form Submission</div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="alert-box">
+                ⚡ You have a new message from your portfolio!
+            </div>
+
+            <!-- Contact Information -->
+            <div class="section">
+                <div class="section-title">👤 Contact Information</div>
+                <div class="field">
+                    <span class="field-label">Name:</span>
+                    <span class="field-value">{{ $json.name }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Email:</span>
+                    <span class="field-value">
+                        <a href="mailto:{{ $json.email }}" style="color: #00D9FF;">{{ $json.email }}</a>
+                    </span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Subject:</span>
+                    <span class="field-value">{{ $json.subject }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Rating:</span>
+                    <span class="field-value">
+                        <span class="rating">
+                            <span class="star">⭐</span>
+                            <span>{{ $json.rating }}/5</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Message -->
+            <div class="section">
+                <div class="section-title">💬 Message</div>
+                <div class="message-box">{{ $json.message }}</div>
+            </div>
+
+            <!-- Action Button -->
+            <div style="text-align: center;">
+                <a href="mailto:{{ $json.email }}?subject=Re: {{ $json.subject }}" class="action-button">
+                    📧 Reply to {{ $json.name }}
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Metadata -->
+            <div class="metadata">
+                <div><strong>🕐 Timestamp:</strong> {{ $json.timestamp }}</div>
+                <div><strong>🔑 Request ID:</strong> {{ $json.request_id }}</div>
+                <div><strong>📍 Source:</strong> Portfolio Contact Form</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This email was sent from your portfolio contact form automation.</p>
+            <p style="margin-top: 8px;">
+                <a href="https://salimdev1337.github.io/Portfolio">View Portfolio</a> |
+                <a href="https://github.com/salimdev1337">GitHub</a>
+            </p>
+            <p style="margin-top: 16px; opacity: 0.7;">
+                🎮 Built with React + FastAPI + n8n
+            </p>
+        </div>
+    </div>
+</body>
+</html>
