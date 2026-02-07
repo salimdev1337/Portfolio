@@ -96,20 +96,29 @@ class TestN8NIntegration:
         mock_response.status_code = 200
         mock_response.text = '{"success": true}'
         mock_response.json.return_value = {"success": True}
+        mock_response.raise_for_status = MagicMock()
 
-        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
-            # Fail first 2 attempts
-            mock_post.side_effect = [
-                httpx.RequestError("Connection failed"),
-                httpx.RequestError("Connection failed"),
-                mock_response,
-            ]
+        # Create a mock for selective patching
+        call_count = {"count": 0}
+        original_post = httpx.AsyncClient.post
 
+        async def selective_mock_post(self, url, **kwargs):
+            """Only mock webhook URLs."""
+            url_str = str(url)
+            if "n8n" in url_str or "webhook" in url_str:
+                call_count["count"] += 1
+                if call_count["count"] <= 2:
+                    raise httpx.RequestError("Connection failed")
+                return mock_response
+            # Pass through non-webhook calls
+            return await original_post(self, url, **kwargs)
+
+        with patch.object(httpx.AsyncClient, "post", selective_mock_post):
             form_data = {
                 "name": "Retry Test",
                 "email": "retry@example.com",
                 "subject": "Test Retry",
-                "message": "Testing retry logic",
+                "message": "Testing retry logic for webhooks",
                 "rating": 3,
             }
 
@@ -117,46 +126,64 @@ class TestN8NIntegration:
 
             # Should succeed after retries
             assert response.status_code == 200
-            assert mock_post.call_count == 3
+            assert call_count["count"] == 3
 
     async def test_webhook_failure_after_max_retries(self, async_client):
         """Test that request fails after max retries exceeded."""
-        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
-            # Fail all attempts
-            mock_post.side_effect = httpx.RequestError("Connection failed")
+        original_post = httpx.AsyncClient.post
 
+        async def always_fail_mock(self, url, **kwargs):
+            """Always fail for webhook URLs."""
+            url_str = str(url)
+            if "n8n" in url_str or "webhook" in url_str:
+                raise httpx.RequestError("Connection failed")
+            # Pass through non-webhook calls
+            return await original_post(self, url, **kwargs)
+
+        with patch.object(httpx.AsyncClient, "post", always_fail_mock):
             form_data = {
                 "name": "Fail Test",
                 "email": "fail@example.com",
                 "subject": "Test Failure",
-                "message": "Testing failure scenario",
+                "message": "Testing failure scenario with retries",
                 "rating": 2,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
 
-            # Should return 500 error
-            assert response.status_code == 500
+            # Should return 503 Service Unavailable
+            assert response.status_code == 503
             data = response.json()
-            assert data["detail"] == "Failed to send notification"
+            assert data["success"] is False
+            assert data["error_code"] == "WEBHOOK_ERROR"
 
     async def test_webhook_timeout_handling(self, async_client):
         """Test that webhook timeouts are handled gracefully."""
-        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
-            mock_post.side_effect = httpx.TimeoutException("Request timeout")
+        original_post = httpx.AsyncClient.post
 
+        async def timeout_mock(self, url, **kwargs):
+            """Raise timeout for webhook URLs."""
+            url_str = str(url)
+            if "n8n" in url_str or "webhook" in url_str:
+                raise httpx.TimeoutException("Request timeout")
+            # Pass through non-webhook calls
+            return await original_post(self, url, **kwargs)
+
+        with patch.object(httpx.AsyncClient, "post", timeout_mock):
             form_data = {
                 "name": "Timeout Test",
                 "email": "timeout@example.com",
                 "subject": "Test Timeout",
-                "message": "Testing timeout handling",
+                "message": "Testing timeout handling for webhooks",
                 "rating": 4,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
 
-            assert response.status_code == 500
-            assert "Failed to send notification" in response.json()["detail"]
+            assert response.status_code == 503
+            data = response.json()
+            assert data["success"] is False
+            assert data["error_code"] == "WEBHOOK_ERROR"
 
     async def test_n8n_workflow_payload_format(self, async_client, mock_n8n_webhook):
         """Test that webhook payload matches n8n workflow expectations."""
@@ -187,19 +214,24 @@ class TestN8NIntegration:
         parsed_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
         assert parsed_time.tzinfo is not None  # Has timezone
 
-        # Verify request_id format
+        # Verify request_id format (req_ prefix + 12 hex chars = 16 total)
         request_id = payload["request_id"]
-        assert len(request_id) == 32  # 16 bytes hex = 32 chars
-        assert all(c in "0123456789abcdef" for c in request_id)
+        assert request_id.startswith("req_")
+        assert len(request_id) == 16  # "req_" (4) + 12 hex chars
+        # Check that the part after "req_" is hex
+        hex_part = request_id[4:]
+        assert len(hex_part) == 12
+        assert all(c in "0123456789abcdef" for c in hex_part)
 
     async def test_multiple_concurrent_submissions(self, async_client, mock_n8n_webhook):
         """Test handling multiple concurrent form submissions."""
+        user_names = ["Alice Johnson", "Bob Smith", "Carol Davis", "David Wilson", "Eve Martinez"]
         form_submissions = [
             {
-                "name": f"User {i}",
+                "name": user_names[i],
                 "email": f"user{i}@example.com",
-                "subject": f"Subject {i}",
-                "message": f"Message {i}",
+                "subject": f"Subject Number {i}",
+                "message": f"This is a test message number {i} for concurrent submissions testing.",
                 "rating": (i % 5) + 1,
             }
             for i in range(5)
@@ -239,7 +271,9 @@ class TestN8NIntegration:
 
         assert payload["form_data"]["name"] == "José García-López"
         assert "🎮" in payload["form_data"]["subject"]
-        assert "\n" in payload["form_data"]["message"]
+        # Note: Newlines are sanitized to spaces by the validator
+        assert "line breaks" in payload["form_data"]["message"]
+        assert "tabs" in payload["form_data"]["message"]
 
     async def test_webhook_error_response_handling(self, async_client):
         """Test handling of n8n error responses."""
