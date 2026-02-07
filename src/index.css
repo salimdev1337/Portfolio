@@ -10,14 +10,14 @@
 
 :root {
   /* Light Mode (Default) */
-  --bg-primary: #F0F0F0;
-  --bg-secondary: #E0E0E0;
-  --text-primary: #1A1A1A;
-  --text-secondary: #4A4A4A;
-  --accent: #4A9EFF;
-  --accent-hover: #2E7FDD;
-  --success: #4CAF50;
-  --border: #2C2C2C;
+  --bg-primary: #f0f0f0;
+  --bg-secondary: #e0e0e0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --accent: #4a9eff;
+  --accent-hover: #2e7fdd;
+  --success: #4caf50;
+  --border: #2c2c2c;
 
   /* Spacing */
   --space-xs: 4px;
@@ -36,14 +36,14 @@
 
 /* Dark Mode */
 .dark {
-  --bg-primary: #1A1A1A;
-  --bg-secondary: #2C2C2C;
-  --text-primary: #E0E0E0;
-  --text-secondary: #A0A0A0;
-  --accent: #00D9FF;
-  --accent-hover: #00B8D4;
-  --success: #00FF88;
-  --border: #4A4A4A;
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2c2c2c;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent: #00d9ff;
+  --accent-hover: #00b8d4;
+  --success: #00ff88;
+  --border: #4a4a4a;
 }
 
 /* ============================================
@@ -61,10 +61,17 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Press Start 2P', cursive;
   line-height: 1.4;
 }
@@ -147,7 +154,9 @@ html {
   background: var(--accent);
   color: white;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
   position: relative;
   text-decoration: none;
   display: inline-block;
@@ -169,7 +178,9 @@ html {
   border: 3px solid var(--border);
   background: var(--bg-secondary);
   padding: var(--space-lg);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .pixel-card:hover {
@@ -225,7 +236,9 @@ html {
 .scroll-hidden {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  transition:
+    opacity 0.8s ease-out,
+    transform 0.8s ease-out;
 }
 
 .scroll-visible {
@@ -261,10 +274,12 @@ html {
 
 /* Blink animation */
 @keyframes blink {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0;
   }
 }
@@ -275,7 +290,8 @@ html {
 
 /* Float animation */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -289,7 +305,8 @@ html {
 
 /* Pulse slow animation */
 @keyframes pulse-slow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

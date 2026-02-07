@@ -1,16 +1,25 @@
 """
 Pytest configuration and fixtures.
 """
+
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
 from app.main import app
-from app.config import settings
 
 
 @pytest.fixture
 def client():
     """Create test client."""
     return TestClient(app)
+
+
+@pytest_asyncio.fixture
+async def async_client():
+    """Create async test client."""
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        yield ac
 
 
 @pytest.fixture
@@ -21,17 +30,5 @@ def valid_contact_data():
         "email": "test@example.com",
         "subject": "Test Subject",
         "message": "This is a test message with enough content.",
-        "rating": 5
+        "rating": 5,
     }
-
-
-@pytest.fixture
-def mock_n8n_webhook(monkeypatch):
-    """Mock n8n webhook response."""
-    async def mock_send(*args, **kwargs):
-        return {"success": True}
-
-    monkeypatch.setattr(
-        "app.services.webhook.WebhookClient.send_contact_form",
-        mock_send
-    )

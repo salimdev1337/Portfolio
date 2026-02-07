@@ -1,6 +1,7 @@
 """
 Tests for input validation and sanitization.
 """
+
 import pytest
 from app.services.validation import InputValidator
 
@@ -38,7 +39,7 @@ def test_sanitize_contact_form():
         "email": "john@example.com",
         "subject": "Test Subject",
         "message": "This is a safe message",
-        "rating": 5
+        "rating": 5,
     }
 
     sanitized = InputValidator.sanitize_contact_form(data)
@@ -53,7 +54,7 @@ def test_sanitize_contact_form_with_html():
         "email": "john@example.com",
         "subject": "Test",
         "message": "Message with <strong>HTML</strong>",
-        "rating": 5
+        "rating": 5,
     }
 
     sanitized = InputValidator.sanitize_contact_form(data)
@@ -68,7 +69,7 @@ def test_sanitize_contact_form_with_dangerous_content():
         "email": "john@example.com",
         "subject": "Test",
         "message": "<script>alert('xss')</script>",
-        "rating": 5
+        "rating": 5,
     }
 
     with pytest.raises(ValueError):

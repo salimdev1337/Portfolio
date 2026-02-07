@@ -1,0 +1,102 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run linter (flake8)
+        run: |
+          cd backend
+          flake8 app/ --max-line-length=100 --exclude=__pycache__
+
+      - name: Run type checker (mypy)
+        run: |
+          cd backend
+          mypy app/ --ignore-missing-imports
+        continue-on-error: true
+
+      - name: Run security scanner (bandit)
+        run: |
+          cd backend
+          bandit -r app/ -f json -o bandit-report.json
+          bandit -r app/ -ll
+
+      - name: Check dependencies (safety)
+        run: |
+          cd backend
+          safety check --json
+        continue-on-error: true
+
+      - name: Run tests
+        run: |
+          cd backend
+          pytest tests/ -v --cov=app --cov-report=xml --cov-report=term
+        env:
+          SECRET_KEY: test-secret-key-for-ci-do-not-use-in-production
+          N8N_WEBHOOK_URL: https://test.n8n.webhook.url
+          ENVIRONMENT: test
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage.xml
+          flags: backend
+        continue-on-error: true
+
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Trigger Render deployment
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+      - name: Wait for deployment
+        run: sleep 60
+
+      - name: Health check
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.BACKEND_API_URL }}/health)
+          if [ $response -eq 200 ]; then
+            echo "✅ Backend is healthy!"
+          else
+            echo "❌ Backend health check failed (HTTP $response)"
+            exit 1
+          fi
+
+      - name: Summary
+        run: |
+          echo "🚀 Backend deployment successful!" >> $GITHUB_STEP_SUMMARY
+          echo "📍 URL: ${{ secrets.BACKEND_API_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "🏥 Health: ✅ Passed" >> $GITHUB_STEP_SUMMARY

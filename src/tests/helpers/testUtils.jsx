@@ -1,5 +1,5 @@
-import { render } from '@testing-library/react'
-import { ThemeProvider } from '../../contexts/ThemeContext'
+import { render } from '@testing-library/react';
+import ThemeProvider from '../../contexts/ThemeContext';
 
 /**
  * Custom render function that wraps components with necessary providers
@@ -8,13 +8,15 @@ import { ThemeProvider } from '../../contexts/ThemeContext'
  * @returns {Object} - Render result from Testing Library
  */
 export function renderWithProviders(ui, options = {}) {
-  return render(
-    <ThemeProvider>
-      {ui}
-    </ThemeProvider>,
-    options
-  )
+  return render(<ThemeProvider>{ui}</ThemeProvider>, options);
 }
 
-// Re-export everything from React Testing Library
-export * from '@testing-library/react'
+// Re-export specific utilities from React Testing Library
+export {
+  render,
+  screen,
+  waitFor,
+  within,
+  fireEvent,
+  act,
+} from '@testing-library/react';

@@ -1,19 +1,29 @@
 import { Card, Button } from './index';
 
 const ProjectCard = ({ project }) => {
-  const { title, categories, difficulty, description, features, techStack, demoUrl, githubUrl, image } = project;
+  const {
+    title,
+    categories,
+    difficulty,
+    description,
+    features,
+    techStack,
+    demoUrl,
+    githubUrl,
+    image,
+  } = project;
 
-  const getDifficultyStars = (diff) => {
+  const getDifficultyStars = diff => {
     return '⭐'.repeat(diff);
   };
 
-  const getCategoryIcon = (cat) => {
+  const getCategoryIcon = cat => {
     const icons = {
       gaming: '🎮',
       enterprise: '💼',
       ai: '🤖',
       mobile: '📱',
-      web: '🌐'
+      web: '🌐',
     };
     return icons[cat] || '💻';
   };
@@ -53,10 +63,15 @@ const ProjectCard = ({ project }) => {
       {/* Features */}
       {features && features.length > 0 && (
         <div className="mb-4">
-          <p className="font-pixel text-[8px] text-[var(--accent)] mb-2">KEY FEATURES:</p>
+          <p className="font-pixel text-[8px] text-[var(--accent)] mb-2">
+            KEY FEATURES:
+          </p>
           <ul className="space-y-1">
             {features.slice(0, 3).map((feature, index) => (
-              <li key={index} className="font-mono text-[10px] text-[var(--text-secondary)] flex items-start gap-2">
+              <li
+                key={index}
+                className="font-mono text-[10px] text-[var(--text-secondary)] flex items-start gap-2"
+              >
                 <span className="text-[var(--accent)] mt-0.5">▸</span>
                 <span>{feature}</span>
               </li>

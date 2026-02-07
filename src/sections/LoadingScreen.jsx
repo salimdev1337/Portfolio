@@ -2,18 +2,21 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '../components/common';
 
 const loadingFacts = [
-  "Fact: Salim tests on potato laptops for maximum compatibility! 🥔",
-  "Fact: Peak productivity happens at 2am with espresso ☕",
-  "Fact: Bug hunting addict since Pascal days 🐛",
-  "Fact: Commits more often than blinking 💻",
-  "Fact: Gaming since Windows XP era 🎮",
-  "Fact: If it runs on a potato, it runs anywhere!",
-  "Fact: Clean code is the only code shipped ✨"
+  'Fact: Salim tests on potato laptops for maximum compatibility! 🥔',
+  'Fact: Peak productivity happens at 2am with espresso ☕',
+  'Fact: Bug hunting addict since Pascal days 🐛',
+  'Fact: Commits more often than blinking 💻',
+  'Fact: Gaming since Windows XP era 🎮',
+  'Fact: If it runs on a potato, it runs anywhere!',
+  'Fact: Clean code is the only code shipped ✨',
 ];
 
 const LoadingScreen = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
-  const [currentFact, setCurrentFact] = useState('');
+  const [currentFact] = useState(() => {
+    // Initialize with random fact
+    return loadingFacts[Math.floor(Math.random() * loadingFacts.length)];
+  });
   const [showButton, setShowButton] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const startTimeRef = useRef(null);
@@ -21,16 +24,12 @@ const LoadingScreen = ({ onComplete }) => {
   const MIN_LOADING_TIME = 2000; // Minimum 2 seconds
 
   useEffect(() => {
-    // Always show loading screen (removed localStorage check)
+    // Initialize loading screen on mount only
     startTimeRef.current = Date.now();
-
-    // Select random Fact
-    const randomFact = loadingFacts[Math.floor(Math.random() * loadingFacts.length)];
-    setCurrentFact(randomFact);
 
     // Simulate loading progress
     progressIntervalRef.current = setInterval(() => {
-      setProgress((prev) => {
+      setProgress(prev => {
         if (prev >= 100) {
           clearInterval(progressIntervalRef.current);
 
@@ -132,8 +131,14 @@ const LoadingScreen = ({ onComplete }) => {
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
           <div className="flex gap-2">
             <div className="w-2 h-2 bg-[var(--accent)] animate-blink"></div>
-            <div className="w-2 h-2 bg-[var(--accent)] animate-blink" style={{ animationDelay: '0.2s' }}></div>
-            <div className="w-2 h-2 bg-[var(--accent)] animate-blink" style={{ animationDelay: '0.4s' }}></div>
+            <div
+              className="w-2 h-2 bg-[var(--accent)] animate-blink"
+              style={{ animationDelay: '0.2s' }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-[var(--accent)] animate-blink"
+              style={{ animationDelay: '0.4s' }}
+            ></div>
           </div>
         </div>
       </div>

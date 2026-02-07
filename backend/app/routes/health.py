@@ -1,6 +1,7 @@
 """
 Health check endpoint for monitoring and load balancers.
 """
+
 import logging
 from fastapi import APIRouter
 from app.models import HealthResponse
@@ -14,7 +15,7 @@ router = APIRouter()
     "/health",
     response_model=HealthResponse,
     summary="Health Check",
-    description="Check if the API is healthy and operational"
+    description="Check if the API is healthy and operational",
 )
 async def health_check() -> HealthResponse:
     """
@@ -28,5 +29,5 @@ async def health_check() -> HealthResponse:
         status="healthy",
         version=settings.api_version,
         environment=settings.environment,
-        n8n_configured=bool(settings.n8n_webhook_url)
+        n8n_configured=bool(settings.n8n_webhook_url),
     )

@@ -2,15 +2,18 @@
 End-to-end integration tests for n8n webhook workflow.
 Tests the complete flow: Contact form → Backend → n8n → Notifications
 """
+
+import asyncio
 import pytest
 import httpx
 from unittest.mock import AsyncMock, patch, MagicMock
-from datetime import datetime, timezone
+from datetime import datetime
 
-from app.main import app
 from app.config import settings
-from app.utils.security import generate_webhook_signature, verify_webhook_signature
-
+from app.utils.security import (
+    generate_webhook_signature,
+    verify_webhook_signature,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -26,7 +29,7 @@ class TestN8NIntegration:
             "email": "john@example.com",
             "subject": "Project Inquiry",
             "message": "I'd like to discuss a project opportunity.",
-            "rating": 5
+            "rating": 5,
         }
 
         response = await async_client.post("/api/contact", json=form_data)
@@ -55,19 +58,20 @@ class TestN8NIntegration:
         assert webhook_payload["form_data"]["rating"] == 5
 
         # Verify metadata
-        assert webhook_payload["metadata"]["source"] == "portfolio_contact_form"
-        assert webhook_payload["metadata"]["version"] == settings.api_version
+        metadata = webhook_payload["metadata"]
+        assert metadata["source"] == "portfolio_contact_form"
+        assert metadata["version"] == settings.api_version
 
     async def test_webhook_signature_generation(self, async_client, mock_n8n_webhook):
         """Test that webhook signatures are generated correctly."""
         # Configure webhook secret
-        with patch.object(settings, 'n8n_webhook_secret', 'test-secret-key'):
+        with patch.object(settings, "n8n_webhook_secret", "test-secret-key"):
             form_data = {
                 "name": "Test User",
                 "email": "test@example.com",
                 "subject": "Test",
                 "message": "Testing signatures",
-                "rating": 4
+                "rating": 4,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
@@ -83,7 +87,7 @@ class TestN8NIntegration:
 
             # Verify signature is valid
             payload = call_args.kwargs.get("json")
-            assert verify_webhook_signature(payload, signature, 'test-secret-key')
+            assert verify_webhook_signature(payload, signature, "test-secret-key")
 
     async def test_webhook_retry_on_failure(self, async_client):
         """Test that webhook retries on failure."""
@@ -93,12 +97,12 @@ class TestN8NIntegration:
         mock_response.text = '{"success": true}'
         mock_response.json.return_value = {"success": True}
 
-        with patch('httpx.AsyncClient.post', new_callable=AsyncMock) as mock_post:
+        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
             # Fail first 2 attempts
             mock_post.side_effect = [
                 httpx.RequestError("Connection failed"),
                 httpx.RequestError("Connection failed"),
-                mock_response
+                mock_response,
             ]
 
             form_data = {
@@ -106,7 +110,7 @@ class TestN8NIntegration:
                 "email": "retry@example.com",
                 "subject": "Test Retry",
                 "message": "Testing retry logic",
-                "rating": 3
+                "rating": 3,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
@@ -117,7 +121,7 @@ class TestN8NIntegration:
 
     async def test_webhook_failure_after_max_retries(self, async_client):
         """Test that request fails after max retries exceeded."""
-        with patch('httpx.AsyncClient.post', new_callable=AsyncMock) as mock_post:
+        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
             # Fail all attempts
             mock_post.side_effect = httpx.RequestError("Connection failed")
 
@@ -126,7 +130,7 @@ class TestN8NIntegration:
                 "email": "fail@example.com",
                 "subject": "Test Failure",
                 "message": "Testing failure scenario",
-                "rating": 2
+                "rating": 2,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
@@ -138,7 +142,7 @@ class TestN8NIntegration:
 
     async def test_webhook_timeout_handling(self, async_client):
         """Test that webhook timeouts are handled gracefully."""
-        with patch('httpx.AsyncClient.post', new_callable=AsyncMock) as mock_post:
+        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
             mock_post.side_effect = httpx.TimeoutException("Request timeout")
 
             form_data = {
@@ -146,7 +150,7 @@ class TestN8NIntegration:
                 "email": "timeout@example.com",
                 "subject": "Test Timeout",
                 "message": "Testing timeout handling",
-                "rating": 4
+                "rating": 4,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
@@ -161,7 +165,7 @@ class TestN8NIntegration:
             "email": "alice@example.com",
             "subject": "Bug Report",
             "message": "Found a bug in the contact form.",
-            "rating": 3
+            "rating": 3,
         }
 
         await async_client.post("/api/contact", json=form_data)
@@ -171,21 +175,22 @@ class TestN8NIntegration:
         payload = call_args.kwargs.get("json")
 
         # Verify n8n workflow can extract these fields
-        assert payload["form_data"]["name"] == "Alice Smith"
-        assert payload["form_data"]["email"] == "alice@example.com"
-        assert payload["form_data"]["subject"] == "Bug Report"
-        assert payload["form_data"]["message"] == "Found a bug in the contact form."
-        assert payload["form_data"]["rating"] == 3
+        form_data_payload = payload["form_data"]
+        assert form_data_payload["name"] == "Alice Smith"
+        assert form_data_payload["email"] == "alice@example.com"
+        assert form_data_payload["subject"] == "Bug Report"
+        assert form_data_payload["message"] == ("Found a bug in the contact form.")
+        assert form_data_payload["rating"] == 3
 
         # Verify timestamp format (ISO 8601)
         timestamp = payload["timestamp"]
-        parsed_time = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        parsed_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
         assert parsed_time.tzinfo is not None  # Has timezone
 
         # Verify request_id format
         request_id = payload["request_id"]
         assert len(request_id) == 32  # 16 bytes hex = 32 chars
-        assert all(c in '0123456789abcdef' for c in request_id)
+        assert all(c in "0123456789abcdef" for c in request_id)
 
     async def test_multiple_concurrent_submissions(self, async_client, mock_n8n_webhook):
         """Test handling multiple concurrent form submissions."""
@@ -195,16 +200,15 @@ class TestN8NIntegration:
                 "email": f"user{i}@example.com",
                 "subject": f"Subject {i}",
                 "message": f"Message {i}",
-                "rating": (i % 5) + 1
+                "rating": (i % 5) + 1,
             }
             for i in range(5)
         ]
 
         # Submit all forms concurrently
-        responses = await asyncio.gather(*[
-            async_client.post("/api/contact", json=form)
-            for form in form_submissions
-        ])
+        responses = await asyncio.gather(
+            *[async_client.post("/api/contact", json=form) for form in form_submissions]
+        )
 
         # All should succeed
         assert all(r.status_code == 200 for r in responses)
@@ -213,10 +217,7 @@ class TestN8NIntegration:
         assert mock_n8n_webhook.call_count == 5
 
         # Each should have unique request_id
-        request_ids = [
-            r.json()["request_id"]
-            for r in responses
-        ]
+        request_ids = [r.json()["request_id"] for r in responses]
         assert len(set(request_ids)) == 5  # All unique
 
     async def test_webhook_with_special_characters(self, async_client, mock_n8n_webhook):
@@ -224,9 +225,9 @@ class TestN8NIntegration:
         form_data = {
             "name": "José García-López",
             "email": "jose.garcia@example.com",
-            "subject": "Test with émojis 🎮 and spëcial çharacters",
+            "subject": ("Test with émojis 🎮 and spëcial çharacters"),
             "message": "Message with\nline breaks\tand tabs",
-            "rating": 5
+            "rating": 5,
         }
 
         response = await async_client.post("/api/contact", json=form_data)
@@ -242,7 +243,7 @@ class TestN8NIntegration:
 
     async def test_webhook_error_response_handling(self, async_client):
         """Test handling of n8n error responses."""
-        with patch('httpx.AsyncClient.post', new_callable=AsyncMock) as mock_post:
+        with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
             # Mock n8n returning error response
             error_response = MagicMock()
             error_response.status_code = 500
@@ -250,7 +251,7 @@ class TestN8NIntegration:
             error_response.raise_for_status.side_effect = httpx.HTTPStatusError(
                 "Server error",
                 request=MagicMock(),
-                response=error_response
+                response=error_response,
             )
             mock_post.return_value = error_response
 
@@ -259,7 +260,7 @@ class TestN8NIntegration:
                 "email": "error@example.com",
                 "subject": "Test Error",
                 "message": "Testing error handling",
-                "rating": 1
+                "rating": 1,
             }
 
             response = await async_client.post("/api/contact", json=form_data)
@@ -273,10 +274,7 @@ class TestWebhookSecurity:
 
     def test_signature_generation(self):
         """Test HMAC signature generation."""
-        payload = {
-            "name": "John Doe",
-            "email": "john@example.com"
-        }
+        payload = {"name": "John Doe", "email": "john@example.com"}
         secret = "test-secret-key"
 
         signature1 = generate_webhook_signature(payload, secret)
@@ -339,16 +337,25 @@ class TestWebhookSecurity:
 @pytest.fixture
 def mock_n8n_webhook():
     """Mock n8n webhook endpoint."""
+    original_post = httpx.AsyncClient.post
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.text = '{"success": true}'
     mock_response.json.return_value = {"success": True}
     mock_response.raise_for_status = MagicMock()
 
-    with patch('httpx.AsyncClient.post', new_callable=AsyncMock) as mock:
-        mock.return_value = mock_response
-        yield mock
+    # Track calls to webhook
+    call_tracker = MagicMock()
 
+    async def selective_mock(self, url, **kwargs):
+        """Only mock webhook URLs, pass through API calls."""
+        # If it's a webhook URL (contains n8n or webhook), return mock
+        if isinstance(url, str) and ("n8n" in url or "webhook" in url):
+            # Track this call
+            call_tracker(url, **kwargs)
+            return mock_response
+        # Otherwise, call the original method for API endpoints
+        return await original_post(self, url, **kwargs)
 
-# Import asyncio for concurrent tests
-import asyncio
+    with patch.object(httpx.AsyncClient, "post", selective_mock):
+        yield call_tracker

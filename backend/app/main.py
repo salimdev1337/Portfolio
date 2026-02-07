@@ -2,6 +2,7 @@
 FastAPI application entry point.
 Initializes the app, middleware, and routes.
 """
+
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -17,7 +18,6 @@ from app.routes import contact, health, webhook_health
 from app.utils.logger import setup_logging
 from app.utils.exceptions import WebhookError
 
-
 # Setup logging
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 limiter = Limiter(
     key_func=get_remote_address,
     storage_uri=settings.rate_limit_storage_url,
-    default_limits=[f"{settings.rate_limit_per_hour}/hour"]
+    default_limits=[f"{settings.rate_limit_per_hour}/hour"],
 )
 
 
@@ -40,8 +40,8 @@ async def lifespan(app: FastAPI):
         extra={
             "version": settings.api_version,
             "environment": settings.environment,
-            "debug": settings.debug
-        }
+            "debug": settings.debug,
+        },
     )
 
     yield
@@ -57,13 +57,13 @@ app = FastAPI(
     description=settings.api_description,
     docs_url="/docs" if settings.is_development else None,
     redoc_url="/redoc" if settings.is_development else None,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
 # Add rate limiter state to app
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler) # type: ignore
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
 
 # CORS Middleware
@@ -73,7 +73,7 @@ app.add_middleware(
     allow_credentials=settings.cors_allow_credentials,
     allow_methods=settings.cors_allow_methods,
     allow_headers=settings.cors_allow_headers,
-    max_age=settings.cors_max_age
+    max_age=settings.cors_max_age,
 )
 
 
@@ -83,16 +83,15 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """Handle validation errors with detailed messages."""
     errors = []
     for error in exc.errors():
-        errors.append({
-            "field": " -> ".join(str(loc) for loc in error["loc"]),
-            "message": error["msg"],
-            "type": error["type"]
-        })
+        errors.append(
+            {
+                "field": " -> ".join(str(loc) for loc in error["loc"]),
+                "message": error["msg"],
+                "type": error["type"],
+            }
+        )
 
-    logger.warning(
-        "Validation error",
-        extra={"errors": errors, "path": request.url.path}
-    )
+    logger.warning("Validation error", extra={"errors": errors, "path": request.url.path})
 
     return JSONResponse(
         status_code=422,
@@ -100,44 +99,38 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "success": False,
             "message": "Validation error. Please check your input.",
             "error_code": "VALIDATION_ERROR",
-            "details": {"errors": errors}
-        }
+            "details": {"errors": errors},
+        },
     )
 
 
 @app.exception_handler(WebhookError)
 async def webhook_exception_handler(request: Request, exc: WebhookError):
     """Handle webhook-specific errors."""
-    logger.error(
-        "Webhook error",
-        extra={"error": str(exc), "path": request.url.path}
-    )
+    logger.error("Webhook error", extra={"error": str(exc), "path": request.url.path})
 
     return JSONResponse(
         status_code=503,
         content={
             "success": False,
             "message": "Unable to process your request. Please try again later.",
-            "error_code": "WEBHOOK_ERROR"
-        }
+            "error_code": "WEBHOOK_ERROR",
+        },
     )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle unexpected errors."""
-    logger.exception(
-        "Unexpected error",
-        extra={"error": str(exc), "path": request.url.path}
-    )
+    logger.exception("Unexpected error", extra={"error": str(exc), "path": request.url.path})
 
     return JSONResponse(
         status_code=500,
         content={
             "success": False,
             "message": "An unexpected error occurred. Please try again later.",
-            "error_code": "INTERNAL_ERROR"
-        }
+            "error_code": "INTERNAL_ERROR",
+        },
     )
 
 
@@ -155,5 +148,5 @@ async def root():
         "name": settings.api_title,
         "version": settings.api_version,
         "status": "operational",
-        "docs": "/docs" if settings.is_development else "Contact the administrator"
+        "docs": "/docs" if settings.is_development else "Contact the administrator",
     }

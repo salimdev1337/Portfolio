@@ -1,6 +1,7 @@
 """
 Contact form endpoint with full security.
 """
+
 import logging
 import uuid
 from fastapi import APIRouter, Request, HTTPException, Depends
@@ -30,7 +31,7 @@ def get_limiter(request: Request) -> Limiter:
         200: {"description": "Contact form submitted successfully"},
         422: {"model": ErrorResponse, "description": "Validation error"},
         429: {"description": "Rate limit exceeded"},
-        503: {"model": ErrorResponse, "description": "Webhook service unavailable"}
+        503: {"model": ErrorResponse, "description": "Webhook service unavailable"},
     },
     summary="Submit Contact Form",
     description=f"""
@@ -49,12 +50,10 @@ def get_limiter(request: Request) -> Limiter:
     3. Check rate limit
     4. Forward to n8n webhook
     5. Return success response
-    """
+    """,
 )
 async def submit_contact_form(
-    request: Request,
-    contact: ContactRequest,
-    limiter: Limiter = Depends(get_limiter)
+    request: Request, contact: ContactRequest, limiter: Limiter = Depends(get_limiter)
 ) -> ContactResponse:
     """
     Handle contact form submission.
@@ -79,78 +78,56 @@ async def submit_contact_form(
             "request_id": request_id,
             "ip": get_remote_address(request),
             "sender_name": contact.name,
-            "message_subject": contact.subject
-        }
+            "message_subject": contact.subject,
+        },
     )
 
     try:
         # Additional sanitization (defense in depth)
-        sanitized_data = InputValidator.sanitize_contact_form(
-            contact.model_dump()
-        )
+        sanitized_data = InputValidator.sanitize_contact_form(contact.model_dump())
 
         # Validate email domain (block disposable emails)
         if not InputValidator.validate_email_domain(contact.email):
             logger.warning(
                 "Disposable email rejected",
-                extra={"request_id": request_id, "email": contact.email}
+                extra={"request_id": request_id, "email": contact.email},
             )
-            raise HTTPException(
-                status_code=400,
-                detail="Please use a permanent email address"
-            )
+            raise HTTPException(status_code=400, detail="Please use a permanent email address")
 
         # Forward to n8n webhook
         webhook_client = WebhookClient(settings.n8n_webhook_url)
         webhook_response = await webhook_client.send_contact_form(
-            data=sanitized_data,
-            request_id=request_id
+            data=sanitized_data, request_id=request_id
         )
 
         logger.info(
             "Contact form forwarded to n8n successfully",
-            extra={
-                "request_id": request_id,
-                "webhook_response": webhook_response
-            }
+            extra={"request_id": request_id, "webhook_response": webhook_response},
         )
 
         return ContactResponse(
             success=True,
             message="Thank you for your message! I'll get back to you soon.",
-            request_id=request_id
+            request_id=request_id,
         )
 
     except WebhookError as e:
-        logger.error(
-            "Webhook error",
-            extra={"request_id": request_id, "error": str(e)}
-        )
+        logger.error("Webhook error", extra={"request_id": request_id, "error": str(e)})
         raise
 
     except ValueError as e:
-        logger.warning(
-            "Validation error",
-            extra={"request_id": request_id, "error": str(e)}
-        )
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+        logger.warning("Validation error", extra={"request_id": request_id, "error": str(e)})
+        raise HTTPException(status_code=400, detail=str(e))
 
-    except Exception as e:
+    except Exception:
         logger.exception(
-            "Unexpected error processing contact form",
-            extra={"request_id": request_id}
+            "Unexpected error processing contact form", extra={"request_id": request_id}
         )
         raise HTTPException(
-            status_code=500,
-            detail="An unexpected error occurred. Please try again later."
+            status_code=500, detail="An unexpected error occurred. Please try again later."
         )
 
 
 # Apply rate limiting to the endpoint
 limiter = Limiter(key_func=get_remote_address)
-submit_contact_form = limiter.limit(f"{settings.rate_limit_per_hour}/hour")(
-    submit_contact_form
-)
+submit_contact_form = limiter.limit(f"{settings.rate_limit_per_hour}/hour")(submit_contact_form)

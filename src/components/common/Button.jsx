@@ -22,13 +22,17 @@ const Button = ({
   ...props
 }) => {
   // Base classes for all buttons
-  const baseClasses = 'pixel-button font-pixel uppercase tracking-wide inline-flex items-center justify-center gap-2 transition-all duration-100';
+  const baseClasses =
+    'pixel-button font-pixel uppercase tracking-wide inline-flex items-center justify-center gap-2 transition-all duration-100';
 
   // Variant styles
   const variantClasses = {
-    primary: 'bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white border-[var(--border)]',
-    secondary: 'bg-[var(--bg-secondary)] hover:bg-[var(--text-secondary)] text-[var(--text-primary)] border-[var(--border)]',
-    success: 'bg-[var(--success)] hover:bg-green-600 text-white border-[var(--border)]',
+    primary:
+      'bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white border-[var(--border)]',
+    secondary:
+      'bg-[var(--bg-secondary)] hover:bg-[var(--text-secondary)] text-[var(--text-primary)] border-[var(--border)]',
+    success:
+      'bg-[var(--success)] hover:bg-green-600 text-white border-[var(--border)]',
   };
 
   // Size styles
@@ -39,7 +43,9 @@ const Button = ({
   };
 
   // Disabled styles
-  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none' : '';
+  const disabledClasses = disabled
+    ? 'opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none'
+    : '';
 
   const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses} ${className}`;
 

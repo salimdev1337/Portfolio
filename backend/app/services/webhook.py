@@ -1,6 +1,7 @@
 """
 n8n webhook client for forwarding contact form submissions.
 """
+
 import logging
 from typing import Dict, Any, Optional
 import httpx
@@ -17,12 +18,7 @@ logger = logging.getLogger(__name__)
 class WebhookClient:
     """Client for sending data to n8n webhooks."""
 
-    def __init__(
-        self,
-        webhook_url: HttpUrl,
-        timeout: int = 10,
-        max_retries: int = 3
-    ):
+    def __init__(self, webhook_url: HttpUrl, timeout: int = 10, max_retries: int = 3):
         """
         Initialize webhook client.
 
@@ -37,15 +33,10 @@ class WebhookClient:
 
         # Create async HTTP client
         self.client = httpx.AsyncClient(
-            timeout=timeout,
-            headers={"Content-Type": "application/json"}
+            timeout=timeout, headers={"Content-Type": "application/json"}
         )
 
-    async def send_contact_form(
-        self,
-        data: Dict[str, Any],
-        request_id: str
-    ) -> Dict[str, Any]:
+    async def send_contact_form(self, data: Dict[str, Any], request_id: str) -> Dict[str, Any]:
         """
         Send contact form data to n8n webhook.
 
@@ -67,12 +58,9 @@ class WebhookClient:
                 "email": data.get("email"),
                 "subject": data.get("subject"),
                 "message": data.get("message"),
-                "rating": data.get("rating", 0)
+                "rating": data.get("rating", 0),
             },
-            "metadata": {
-                "source": "portfolio_contact_form",
-                "version": settings.api_version
-            }
+            "metadata": {"source": "portfolio_contact_form", "version": settings.api_version},
         }
 
         # Generate webhook signature if secret is configured
@@ -82,21 +70,17 @@ class WebhookClient:
             headers["X-Webhook-Signature"] = signature
             logger.debug(
                 "Generated webhook signature",
-                extra={"request_id": request_id, "signature": signature[:8] + "..."}
+                extra={"request_id": request_id, "signature": signature[:8] + "..."},
             )
 
         logger.info(
             "Sending contact form to n8n webhook",
-            extra={"request_id": request_id, "webhook_url": self.webhook_url}
+            extra={"request_id": request_id, "webhook_url": self.webhook_url},
         )
 
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = await self.client.post(
-                    self.webhook_url,
-                    json=payload,
-                    headers=headers
-                )
+                response = await self.client.post(self.webhook_url, json=payload, headers=headers)
 
                 # Check response status
                 response.raise_for_status()
@@ -106,8 +90,8 @@ class WebhookClient:
                     extra={
                         "request_id": request_id,
                         "status_code": response.status_code,
-                        "attempt": attempt
-                    }
+                        "attempt": attempt,
+                    },
                 )
 
                 return response.json() if response.text else {"success": True}
@@ -119,8 +103,8 @@ class WebhookClient:
                         "request_id": request_id,
                         "status_code": e.response.status_code,
                         "attempt": attempt,
-                        "error": str(e)
-                    }
+                        "error": str(e),
+                    },
                 )
 
                 if attempt == self.max_retries:
@@ -131,11 +115,7 @@ class WebhookClient:
             except httpx.RequestError as e:
                 logger.error(
                     "Webhook network error",
-                    extra={
-                        "request_id": request_id,
-                        "attempt": attempt,
-                        "error": str(e)
-                    }
+                    extra={"request_id": request_id, "attempt": attempt, "error": str(e)},
                 )
 
                 if attempt == self.max_retries:
@@ -145,14 +125,11 @@ class WebhookClient:
 
             except Exception as e:
                 logger.exception(
-                    "Unexpected webhook error",
-                    extra={"request_id": request_id, "attempt": attempt}
+                    "Unexpected webhook error", extra={"request_id": request_id, "attempt": attempt}
                 )
 
                 if attempt == self.max_retries:
-                    raise WebhookError(
-                        "Unexpected error sending webhook"
-                    ) from e
+                    raise WebhookError("Unexpected error sending webhook") from e
 
         # Should never reach here
         raise WebhookError("Webhook request failed")
@@ -177,8 +154,7 @@ def get_webhook_client() -> WebhookClient:
 
     if _webhook_client is None:
         _webhook_client = WebhookClient(
-            webhook_url=settings.n8n_webhook_url,
-            timeout=settings.n8n_timeout
+            webhook_url=settings.n8n_webhook_url, timeout=settings.n8n_timeout
         )
 
     return _webhook_client
