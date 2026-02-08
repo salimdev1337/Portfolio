@@ -53,14 +53,12 @@ class WebhookClient:
         payload = {
             "request_id": request_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "form_data": {
-                "name": data.get("name"),
-                "email": data.get("email"),
-                "subject": data.get("subject"),
-                "message": data.get("message"),
-                "rating": data.get("rating", 0),
-            },
-            "metadata": {"source": "portfolio_contact_form", "version": settings.api_version},
+            "name": data.get("name"),
+            "email": data.get("email"),
+            "subject": data.get("subject"),
+            "message": data.get("message"),
+            "rating": data.get("rating", 0),
+            "source": "portfolio_contact_form",
         }
 
         # Generate webhook signature if secret is configured
