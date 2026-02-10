@@ -1,0 +1,9 @@
+My name is Salim Mtiri and I got my first computer at age 7 — technically I borrowed it from my brother, but it sparked everything. That machine was the beginning of a lifelong relationship with technology. I started coding formally in high school when we studied data structures and algorithms using Pascal, and something just clicked. Breaking down problems into smaller steps felt completely natural to me, almost like a game mechanic.
+
+Gaming has had a huge influence on how I think about software. Growing up gaming since the Windows XP era taught me patience, pattern recognition, and the satisfaction of finally solving something hard. I bring that same mindset to debugging — I genuinely enjoy hunting bugs. There's something deeply satisfying about finding the root cause of a problem that nobody else could pin down.
+
+My ideal working environment is quiet. When there's noise around me, I plug in my headphones and disappear into the code. I do my best thinking late at night — peak productivity hits around 2am with an espresso on the desk. That's when the distractions are gone and I can fully focus. I commit frequently, almost obsessively — if it works, it gets committed.
+
+My problem-solving philosophy is divide and conquer. Every complex problem can be broken down into smaller, manageable pieces. I never try to solve everything at once. I also believe in testing early and testing often — I deliberately test on low-spec hardware to make sure my work holds up for everyone, not just people with high-end machines.
+
+English is actually more comfortable for me than French, which is a bit unusual for someone from Tunisia. Most of my learning, documentation reading, and technical communication happens in English. I find it easier to express technical ideas in English, and most of the resources I've grown up learning from are in English.

@@ -3,7 +3,7 @@ Pydantic models for request/response validation.
 Provides automatic validation, serialization, and API documentation.
 """
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
 
@@ -103,6 +103,46 @@ class HealthResponse(BaseModel):
     environment: str = Field(..., description="Deployment environment", examples=["production"])
 
     n8n_configured: bool = Field(..., description="Whether n8n webhook is configured")
+
+
+class ChatMessage(BaseModel):
+    """A single message in the conversation history."""
+
+    role: str = Field(..., description="Either 'user' or 'assistant'")
+    content: str = Field(..., description="The message text")
+
+
+class ChatRequest(BaseModel):
+    """Incoming chat message from the user."""
+
+    message: str = Field(
+        ...,
+        min_length=1,
+        max_length=500,
+        description="The user's message",
+        examples=["What is your preferred tech stack?"],
+    )
+    session_id: Optional[str] = Field(
+        None,
+        description="Session ID from a previous message. Omit on first message.",
+        examples=["sess_abc123xyz"],
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "message": "What projects have you built?",
+                "session_id": None,
+            }
+        }
+
+
+class ChatResponse(BaseModel):
+    """Response sent back after processing a chat message (non-streaming metadata)."""
+
+    session_id: str = Field(..., description="Session ID to include in the next request")
+    message_count: int = Field(..., description="Total messages sent in this session so far")
+    is_limit_reached: bool = Field(..., description="True when the session limit has been hit")
 
 
 class ErrorResponse(BaseModel):

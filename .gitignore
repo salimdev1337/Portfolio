@@ -78,11 +78,14 @@ env/
 venv/
 ENV/
 .venv
-.vscode
 # Backend specific
 backend/.env
 backend/venv/
 backend/__pycache__/
+.pytest_cache/
+*.egg-info/
+htmlcov/
+# Note: .vscode/ is handled above with exceptions for extensions.json and settings.json
 
 # Misc
 .eslintcache

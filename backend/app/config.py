@@ -44,6 +44,17 @@ class Settings(BaseSettings):
         "", validation_alias="N8N_WEBHOOK_SECRET"
     )  # Optional signing secret
 
+    # Gemini AI
+    gemini_api_key: str = Field(..., validation_alias="GEMINI_API_KEY")
+
+    # Chat / RAG
+    chat_session_limit: int = Field(20, validation_alias="CHAT_SESSION_LIMIT", ge=1, le=100)
+    chat_rate_limit_per_minute: int = Field(10, validation_alias="CHAT_RATE_LIMIT_PER_MINUTE", ge=1, le=60)
+    chat_max_message_length: int = Field(500, validation_alias="CHAT_MAX_MESSAGE_LENGTH", ge=1, le=2000)
+    chat_context_window: int = Field(5, validation_alias="CHAT_CONTEXT_WINDOW", ge=1, le=20)
+    chat_max_sessions: int = Field(1000, validation_alias="CHAT_MAX_SESSIONS", ge=1)
+    chat_session_ttl_minutes: int = Field(30, validation_alias="CHAT_SESSION_TTL_MINUTES", ge=1)
+
     # Logging
     log_level: str = Field("INFO", validation_alias="LOG_LEVEL")
     log_format: str = "json"  # json or text

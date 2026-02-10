@@ -14,7 +14,9 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.config import settings
-from app.routes import contact, health, webhook_health
+from app.routes import contact, health, webhook_health, chat
+from app.services.rag import RAGService
+from app.services.chatbot import ChatbotService, Session
 from app.utils.logger import setup_logging
 from app.utils.exceptions import WebhookError
 
@@ -44,10 +46,27 @@ async def lifespan(app: FastAPI):
         },
     )
 
+    # Initialize RAG service (loads embedding model + builds ChromaDB index)
+    # This runs once at startup and takes ~3-8 seconds on first boot
+    rag_service = RAGService()
+    await rag_service.initialize()
+
+    # In-memory session store — dict keyed by session_id
+    # Shared across all requests via app.state
+    sessions: dict[str, Session] = {}
+
+    # Initialize chatbot service with the RAG service and shared session store
+    app.state.rag_service = rag_service
+    app.state.sessions = sessions
+    app.state.chatbot_service = ChatbotService(rag_service, sessions)
+
     yield
 
     # Shutdown
-    logger.info("Shutting down Portfolio Contact API")
+    logger.info(
+        "Shutting down Portfolio Contact API",
+        extra={"active_sessions": len(app.state.sessions)},
+    )
 
 
 # Initialize FastAPI app
@@ -138,6 +157,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.include_router(health.router, prefix="", tags=["Health"])
 app.include_router(contact.router, prefix="/api", tags=["Contact"])
 app.include_router(webhook_health.router, prefix="/api", tags=["Webhook"])
+app.include_router(chat.router, prefix="/api", tags=["Chat"])
 
 
 # Root endpoint
