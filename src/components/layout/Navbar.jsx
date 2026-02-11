@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import Button from '../common/Button';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../contexts/useTheme';
 
 /**
@@ -9,6 +8,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const navRef = useRef(null);
 
   // Handle scroll effect
   useEffect(() => {
@@ -18,6 +18,31 @@ const Navbar = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleOutsideClick = e => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [isMenuOpen]);
+
+  // Close menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = e => {
+      if (e.key === 'Escape') setIsMenuOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Navigation links
@@ -35,8 +60,9 @@ const Navbar = () => {
 
   return (
     <nav
+      ref={navRef}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+        isScrolled || isMenuOpen
           ? 'bg-[var(--bg-primary)] border-b-3 border-[var(--border)] shadow-lg'
           : 'bg-transparent'
       }`}
@@ -147,6 +173,7 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="w-10 h-10 flex flex-col items-center justify-center gap-1.5 border-3 border-[var(--border)] bg-[var(--bg-secondary)] hover:bg-[var(--accent)] transition-colors group"
               aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
             >
               <span
                 className={`w-5 h-0.5 bg-[var(--text-primary)] group-hover:bg-white transition-all ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}

@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Navbar, Footer } from './components/layout';
-import {
-  LoadingScreen,
-  Hero,
-  About,
-  Projects,
-  Skills,
-  Contact,
-} from './sections';
+import { LoadingScreen } from './sections';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+// Lazy-load sections — reduces initial JS parse time and improves LCP/TTI
+const Hero = lazy(() => import('./sections/Hero'));
+const About = lazy(() => import('./sections/About'));
+const Projects = lazy(() => import('./sections/Projects'));
+const Skills = lazy(() => import('./sections/Skills'));
+const Contact = lazy(() => import('./sections/Contact'));
+const Chatbot = lazy(() => import('./components/chatbot'));
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,39 +19,32 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] transition-colors duration-300">
-      {/* Loading Screen */}
-      {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[var(--bg-primary)] transition-colors duration-300">
+        {/* Loading Screen */}
+        {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
 
-      {/* Main App Content */}
-      {!isLoading && (
-        <>
-          {/* Navigation */}
-          <Navbar />
+        {/* Main App Content */}
+        {!isLoading && (
+          <Suspense fallback={null}>
+            <Navbar />
 
-          {/* Main Content */}
-          <main>
-            {/* Hero Section */}
-            <Hero />
+            <main>
+              <Hero />
+              <About />
+              <Projects />
+              <Skills />
+              <Contact />
+            </main>
 
-            {/* About Section */}
-            <About />
+            <Footer />
 
-            {/* Projects Section */}
-            <Projects />
-
-            {/* Skills Section */}
-            <Skills />
-
-            {/* Contact Section */}
-            <Contact />
-          </main>
-
-          {/* Footer */}
-          <Footer />
-        </>
-      )}
-    </div>
+            {/* Chatbot — floats above all content, bottom-right */}
+            <Chatbot />
+          </Suspense>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }
 

@@ -4,24 +4,18 @@ Contact form endpoint with full security.
 
 import logging
 import uuid
-from fastapi import APIRouter, Request, HTTPException, Depends
-from slowapi import Limiter
+from fastapi import APIRouter, Request, HTTPException, Response
 from slowapi.util import get_remote_address
 
 from app.models import ContactRequest, ContactResponse, ErrorResponse
 from app.services.validation import InputValidator
-from app.services.webhook import WebhookClient
+from app.services.webhook import get_webhook_client
 from app.config import settings
 from app.utils.exceptions import WebhookError
+from app.middleware.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-# Get limiter from app state
-def get_limiter(request: Request) -> Limiter:
-    """Dependency to get limiter from app state."""
-    return request.app.state.limiter
 
 
 @router.post(
@@ -52,8 +46,9 @@ def get_limiter(request: Request) -> Limiter:
     5. Return success response
     """,
 )
+@limiter.limit(f"{settings.rate_limit_per_hour}/hour")  # noqa: E302
 async def submit_contact_form(
-    request: Request, contact: ContactRequest, limiter: Limiter = Depends(get_limiter)
+    request: Request, response: Response, contact: ContactRequest
 ) -> ContactResponse:
     """
     Handle contact form submission.
@@ -61,7 +56,6 @@ async def submit_contact_form(
     Args:
         request: FastAPI request object
         contact: Validated contact form data
-        limiter: Rate limiter instance
 
     Returns:
         ContactResponse with success status
@@ -94,8 +88,8 @@ async def submit_contact_form(
             )
             raise HTTPException(status_code=400, detail="Please use a permanent email address")
 
-        # Forward to n8n webhook
-        webhook_client = WebhookClient(settings.n8n_webhook_url)
+        # Use the singleton webhook client (avoids leaking httpx.AsyncClient per request)
+        webhook_client = get_webhook_client()
         webhook_response = await webhook_client.send_contact_form(
             data=sanitized_data, request_id=request_id
         )
@@ -126,8 +120,3 @@ async def submit_contact_form(
         raise HTTPException(
             status_code=500, detail="An unexpected error occurred. Please try again later."
         )
-
-
-# Apply rate limiting to the endpoint
-limiter = Limiter(key_func=get_remote_address)
-submit_contact_form = limiter.limit(f"{settings.rate_limit_per_hour}/hour")(submit_contact_form)

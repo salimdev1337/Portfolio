@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Card,
   Button,
@@ -24,6 +24,14 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const statusTimerRef = useRef(null);
+
+  // Clean up the status-clear timer on unmount to avoid setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
+    };
+  }, []);
 
   const contactInfo = [
     {
@@ -163,15 +171,14 @@ const Contact = () => {
       });
 
       // Clear success message after 5 seconds
-      setTimeout(() => {
+      statusTimerRef.current = setTimeout(() => {
         setSubmitStatus(null);
       }, 5000);
-    } catch (error) {
-      console.error('Error submitting form:', error);
+    } catch {
       setSubmitStatus('error');
 
       // Clear error message after 5 seconds
-      setTimeout(() => {
+      statusTimerRef.current = setTimeout(() => {
         setSubmitStatus(null);
       }, 5000);
     } finally {

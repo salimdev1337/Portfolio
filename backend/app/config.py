@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     api_description: str = "Secure contact form API with rate limiting"
 
     # Server Configuration
-    host: str = "0.0.0.0"
+    host: str = "0.0.0.0"  # nosec B104
     port: int = 8000
     debug: bool = Field(False, validation_alias="DEBUG")
     environment: str = Field("production", validation_alias="ENVIRONMENT")
@@ -29,13 +29,14 @@ class Settings(BaseSettings):
     # Security
     secret_key: str = Field(..., validation_alias="SECRET_KEY", min_length=32)
     allowed_origins: str = Field(
-        default="http://localhost:5173,http://localhost:3000,https://*.github.io",
+        default="http://localhost:5173,http://localhost:3000",
         validation_alias="ALLOWED_ORIGINS",
     )
 
     # Rate Limiting
     rate_limit_per_hour: int = Field(3, validation_alias="RATE_LIMIT_PER_HOUR", ge=1, le=100)
-    rate_limit_storage_url: str = "memory://"  # Use Redis in production
+    # Set REDIS_URL on Render to persist rate limits across cold-starts (e.g. Upstash rediss://)
+    rate_limit_storage_url: str = Field("memory://", validation_alias="REDIS_URL")
 
     # n8n Webhook
     n8n_webhook_url: HttpUrl = Field(..., validation_alias="N8N_WEBHOOK_URL")
@@ -49,8 +50,12 @@ class Settings(BaseSettings):
 
     # Chat / RAG
     chat_session_limit: int = Field(20, validation_alias="CHAT_SESSION_LIMIT", ge=1, le=100)
-    chat_rate_limit_per_minute: int = Field(10, validation_alias="CHAT_RATE_LIMIT_PER_MINUTE", ge=1, le=60)
-    chat_max_message_length: int = Field(500, validation_alias="CHAT_MAX_MESSAGE_LENGTH", ge=1, le=2000)
+    chat_rate_limit_per_minute: int = Field(
+        10, validation_alias="CHAT_RATE_LIMIT_PER_MINUTE", ge=1, le=60
+    )
+    chat_max_message_length: int = Field(
+        500, validation_alias="CHAT_MAX_MESSAGE_LENGTH", ge=1, le=2000
+    )
     chat_context_window: int = Field(5, validation_alias="CHAT_CONTEXT_WINDOW", ge=1, le=20)
     chat_max_sessions: int = Field(1000, validation_alias="CHAT_MAX_SESSIONS", ge=1)
     chat_session_ttl_minutes: int = Field(30, validation_alias="CHAT_SESSION_TTL_MINUTES", ge=1)

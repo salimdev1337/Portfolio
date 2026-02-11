@@ -3,7 +3,7 @@ Pydantic models for request/response validation.
 Provides automatic validation, serialization, and API documentation.
 """
 
-from typing import Optional, List
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
 

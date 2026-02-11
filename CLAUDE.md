@@ -159,6 +159,31 @@ chore: remove generated files from repo
 
 ### 🚨 CRITICAL: Before Every Push (Claude Must Follow)
 
+**Run the full CI pipeline locally before pushing. This prevents CI failures.**
+
+#### Backend CI (run from `backend/` directory)
+```bash
+python -m flake8 app/ --max-line-length=100 --exclude=__pycache__
+python -m mypy app/ --ignore-missing-imports
+python -m bandit -r app/ -ll
+python -m pytest tests/ -v
+```
+
+#### Frontend CI (run from repo root)
+```bash
+npm run lint
+npm run build
+npx vitest run
+```
+
+All commands must exit 0 with no errors before pushing.
+
+#### Known dependency constraints (do not break these)
+- `google-genai` requires `httpx>=0.28.1` — keep `httpx>=0.28.0` in requirements.txt
+- `fastapi>=0.115` required for `httpx>=0.28` compat (starlette 0.36 breaks with httpx 0.28+)
+- Rate-limited endpoints **must** include `response: Response` parameter so slowapi 0.1.9 can inject headers (incompatible with fastapi 0.115+ otherwise)
+- `slowapi` decorators require `@limiter.limit(...)` placed directly above the `async def` (not post-definition)
+
 1. **ASK USER FOR PERMISSION** — NEVER push without explicit confirmation
 2. **REBASE ALL COMMITS INTO ONE:**
    ```bash
@@ -286,5 +311,49 @@ After each meaningful commit, Claude **must** update this file to reflect the cu
 
 ---
 
-**Last Updated:** 2026-02-10
+**Last Updated:** 2026-02-11
 **Stack:** React + Tailwind + FastAPI + GitHub Pages + Render
+
+## Recent Changes (2026-02-11) — CI/CD Fix Pass
+
+### Backend (mypy + test fixes)
+- `requirements.txt`: Upgraded `fastapi` → `>=0.115.0,<0.116.0`, `uvicorn` → `>=0.30.0`, `gunicorn` → `>=22.0.0`, `httpx` → `>=0.28.0` (required by `google-genai 1.62+`; starlette 0.36 broke with httpx 0.28+, starlette 0.46 via fastapi 0.115 fixes this)
+- `requirements-dev.txt`: Added `types-bleach>=6.1.0` for mypy stubs
+- `services/validation.py`: Added explicit `List[str]` / `Dict[str, Any]` types; cast bleach return with `str()`; added `# type: ignore[import-untyped]` on bleach import
+- `services/rag.py`: Annotated `chunks/chunk_ids/sources` as `List[str]`; wrapped ChromaDB return with `list()`
+- `routes/chat.py`: Added `from typing import cast`; cast `request.app.state.chatbot_service`; added `response: Response` param (required by slowapi 0.1.9 with fastapi 0.115+)
+- `routes/contact.py`: Added `response: Response` param (same slowapi fix)
+- `main.py`: Imported `RequestResponseEndpoint` from starlette; typed `call_next` parameter
+- `tests/test_n8n_integration.py`: Updated 3 tests to use flat webhook payload structure (tests were written expecting nested `form_data`/`metadata` keys but `webhook.py` was previously flattened — tests were never updated)
+
+## Recent Changes (2026-02-11) — Production Readiness Pass
+
+### Backend
+- `render.yaml`: Removed erroneous `pip install torch` (~1.5GB build bloat)
+- `config.py`: Fixed CORS default (removed `*.github.io` wildcard — not supported by FastAPI). Set `ALLOWED_ORIGINS` env var on Render. Added `REDIS_URL` env var support for persistent rate limiting
+- `middleware/rate_limit.py`: Fixed IP spoofing (uses `request.client.host` not forged `X-Forwarded-For`). Exported a shared `limiter` singleton
+- `routes/contact.py`: Unified rate limiter (shared singleton). Fixed webhook client leak (now uses `get_webhook_client()` singleton). Removed broken post-definition decoration pattern
+- `routes/chat.py`: Same rate limiter fixes as contact.py
+- `services/chatbot.py`: Switched `gemini-2.5-flash` (preview) → `gemini-2.0-flash` (stable)
+- `main.py`: Now imports shared limiter. Added security headers middleware (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, HSTS in production)
+
+### Frontend
+- `index.html`: Added meta description, Open Graph tags, Twitter Card, apple-touch-icon, preconnect + `<link>` font loading (replaces render-blocking CSS `@import`)
+- `src/index.css`: Removed render-blocking `@import url('https://fonts.googleapis.com/...')`
+- `App.jsx`: Added `ErrorBoundary` wrapper. Lazy-loaded all sections + Chatbot with `React.lazy` + `Suspense`
+- `contexts/ThemeContext.jsx`: Now respects `prefers-color-scheme` on first visit. Refactored to use lazy `useState` initializer (fixes eslint `set-state-in-effect` rule)
+- `sections/Contact.jsx`: Removed `console.error`. Fixed `setTimeout` cleanup on unmount via `useRef`
+- `sections/Projects.jsx`: Added `aria-pressed` to filter buttons. Wrapped emoji in `aria-hidden="true"`
+- `sections/Skills.jsx`: Added `aria-expanded` + `aria-controls` to accordion buttons
+- `sections/Hero.jsx`: Added `aria-hidden="true"` to decorative SVG
+- `sections/LoadingScreen.jsx`: Wired up `keydown` listener so "press any key" actually works
+- `components/chatbot/Chatbot.jsx`: Added `aria-expanded` to toggle button
+- `src/components/common/ErrorBoundary.jsx`: New component
+
+### CI/CD
+- `.github/workflows/frontend-deploy.yml`: Upgraded Node 18 → 22 LTS. Removed `CI: false`
+- `.github/workflows/backend-deploy.yml`: Added `GEMINI_API_KEY` to test env (add secret in repo settings)
+
+### Environment Variables Added
+- Backend: `REDIS_URL` — set to Redis connection string for persistent rate limiting (optional, defaults to memory)
+- Frontend: No new vars

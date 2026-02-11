@@ -44,8 +44,8 @@ Context about Salim (use this to answer questions):
 # Message shown when the 20-message session limit is reached
 TIRED_MESSAGE = (
     "⚔️ *collapses dramatically* Phew, adventurer! I've answered 20 questions and I'm running "
-    "low on mana! If you have more quests, head to the **Contact** section and reach Salim directly "
-    "— he answers faster than I do anyway. See you next time! 🧙"
+    "low on mana! If you have more quests, head to the **Contact** section and reach Salim "
+    "directly — he answers faster than I do anyway. See you next time! 🧙"
 )
 
 
@@ -177,7 +177,7 @@ class ChatbotService:
         session.add_message("user", message)
 
         # --- Step 3: RAG — find relevant context from the knowledge base ---
-        relevant_chunks = self._rag.query(message, n_results=3)
+        relevant_chunks = await self._rag.query(message, n_results=3)
         context = "\n\n---\n\n".join(relevant_chunks) if relevant_chunks else (
             "No specific context found. Answer based on general knowledge of Salim."
         )
@@ -193,7 +193,7 @@ class ChatbotService:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.7,       # slight creativity, not too random
-                    max_output_tokens=400, # keep answers concise
+                    max_output_tokens=400,  # keep answers concise
                 ),
             )
             async for chunk in stream:

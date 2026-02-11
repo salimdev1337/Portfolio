@@ -1,19 +1,26 @@
 
+import asyncio
 import logging
-import os
 from pathlib import Path
 from typing import List
 
 import chromadb
-from sentence_transformers import SentenceTransformer
+import httpx
+
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 # Path to the knowledge base directory (relative to the backend/ folder)
 KNOWLEDGE_DIR = Path(__file__).parent.parent.parent / "knowledge"
 
-# The embedding model — small, fast, and runs 100% locally
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+# Google Generative Language REST endpoint for text-embedding-004.
+# batchEmbedContents only exists on Vertex AI; the public API only exposes
+# embedContent (single). We fan out concurrent single calls for batch work.
+_EMBED_URL = (
+    "https://generativelanguage.googleapis.com"
+    "/v1beta/models/text-embedding-004:embedContent"
+)
 
 # ChromaDB collection name
 COLLECTION_NAME = "portfolio_knowledge"
@@ -23,34 +30,60 @@ class RAGService:
     """
     Handles document loading, embedding, and similarity search.
 
+    Uses Gemini's text-embedding-004 REST API instead of a local model,
+    which avoids the ~500MB PyTorch dependency on deployment.
+
     Usage:
         rag = RAGService()
         await rag.initialize()          # call once at startup
-        chunks = rag.query("your stack?", n_results=3)
+        chunks = await rag.query("your stack?", n_results=3)
     """
 
     def __init__(self):
-        self._client = None       # ChromaDB in-memory client
+        self._chroma = None       # ChromaDB in-memory client
         self._collection = None   # ChromaDB collection holding our vectors
-        self._model = None        # SentenceTransformer embedding model
         self._initialized = False
+
+    # ------------------------------------------------------------------
+    # Embedding helpers (direct REST — bypasses SDK version quirks)
+    # ------------------------------------------------------------------
+
+    async def _embed(self, text: str) -> List[float]:
+        """Embed a single text via the embedContent REST endpoint."""
+        payload = {"content": {"parts": [{"text": text}]}}
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(
+                _EMBED_URL,
+                headers={"x-goog-api-key": settings.gemini_api_key},
+                json=payload,
+            )
+            response.raise_for_status()
+        return list(response.json()["embedding"]["values"])
+
+    async def _embed_many(self, texts: List[str]) -> List[List[float]]:
+        """
+        Embed multiple texts concurrently.
+        batchEmbedContents is Vertex-AI-only; we fan out single calls instead.
+        """
+        return list(await asyncio.gather(*[self._embed(t) for t in texts]))
+
+    # ------------------------------------------------------------------
+    # Lifecycle
+    # ------------------------------------------------------------------
 
     async def initialize(self) -> None:
         """
         Load knowledge files, embed all chunks, and populate ChromaDB.
         This runs once at application startup via the lifespan handler.
         """
-        logger.info("Initializing RAG service — loading embedding model...")
-
-        # Load the embedding model (downloads ~80MB on first run, cached after)
-        self._model = SentenceTransformer(EMBEDDING_MODEL)
+        logger.info("Initializing RAG service — using Gemini text-embedding-004...")
 
         # Create an in-memory ChromaDB client (no disk writes)
-        self._client = chromadb.EphemeralClient()
+        self._chroma = chromadb.EphemeralClient()
 
-        # Create the collection — we provide our own embeddings so we set
-        # embedding_function=None to tell ChromaDB not to embed for us
-        self._collection = self._client.create_collection(
+        # Create the collection — we provide our own embeddings so ChromaDB
+        # doesn't try to run its own local embedding function
+        self._collection = self._chroma.create_collection(
             name=COLLECTION_NAME,
             metadata={"hnsw:space": "cosine"},  # cosine similarity for semantic search
         )
@@ -62,14 +95,14 @@ class RAGService:
             logger.warning("No knowledge chunks found — chatbot will have no context!")
             return
 
-        # Embed all chunks at once (batched, much faster than one-by-one)
-        logger.info(f"Embedding {len(chunks)} chunks from knowledge base...")
-        embeddings = self._model.encode(chunks, show_progress_bar=False)
+        # Embed all chunks via concurrent embedContent calls
+        logger.info(f"Embedding {len(chunks)} chunks via Gemini REST API...")
+        embeddings = await self._embed_many(chunks)
 
         # Store chunks + their embeddings in ChromaDB
         self._collection.add(
             documents=chunks,
-            embeddings=embeddings.tolist(),
+            embeddings=embeddings,
             ids=chunk_ids,
             metadatas=[{"source": s} for s in sources],
         )
@@ -92,9 +125,9 @@ class RAGService:
             chunk_ids: unique ID for each chunk (used by ChromaDB)
             sources:   filename each chunk came from (for debugging)
         """
-        chunks = []
-        chunk_ids = []
-        sources = []
+        chunks: List[str] = []
+        chunk_ids: List[str] = []
+        sources: List[str] = []
 
         if not KNOWLEDGE_DIR.exists():
             logger.error(f"Knowledge directory not found: {KNOWLEDGE_DIR}")
@@ -121,12 +154,12 @@ class RAGService:
 
         return chunks, chunk_ids, sources
 
-    def query(self, question: str, n_results: int = 3) -> List[str]:
+    async def query(self, question: str, n_results: int = 3) -> List[str]:
         """
         Find the most semantically relevant chunks for a given question.
 
         How it works:
-          1. Embed the question using the same model that embedded the chunks
+          1. Embed the question via Gemini REST API (same model as stored chunks)
           2. ChromaDB computes cosine similarity between the question vector
              and all stored chunk vectors
           3. Return the top-N closest chunks as plain text strings
@@ -143,13 +176,13 @@ class RAGService:
             return []
 
         # Embed the question (same model = compatible vector space)
-        question_embedding = self._model.encode([question])
+        question_vector = await self._embed(question)
 
         results = self._collection.query(
-            query_embeddings=question_embedding.tolist(),
+            query_embeddings=[question_vector],
             n_results=min(n_results, self._collection.count()),
         )
 
         # results["documents"] is a list of lists — we want the inner list
         documents = results.get("documents", [[]])[0]
-        return documents
+        return list(documents)

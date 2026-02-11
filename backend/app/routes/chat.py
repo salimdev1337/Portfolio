@@ -23,26 +23,24 @@ The frontend reads these events via fetch() with a ReadableStream
 
 import json
 import logging
-from fastapi import APIRouter, Request, HTTPException, Depends
+from typing import cast
+from fastapi import APIRouter, Request, HTTPException, Depends, Response
 from fastapi.responses import StreamingResponse
-from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from app.models import ChatRequest
 from app.services.validation import InputValidator
 from app.services.chatbot import ChatbotService
 from app.config import settings
+from app.middleware.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# Rate limiter — same pattern as contact.py
-limiter = Limiter(key_func=get_remote_address)
-
 
 def get_chatbot(request: Request) -> ChatbotService:
     """Dependency: pull the ChatbotService from app.state (set at startup)."""
-    return request.app.state.chatbot_service
+    return cast(ChatbotService, request.app.state.chatbot_service)
 
 
 @router.post(
@@ -68,8 +66,10 @@ def get_chatbot(request: Request) -> ChatbotService:
     Read chunks via fetch() with ReadableStream on the frontend.
     """,
 )
+@limiter.limit(f"{settings.chat_rate_limit_per_minute}/minute")
 async def chat(
     request: Request,
+    response: Response,
     body: ChatRequest,
     chatbot: ChatbotService = Depends(get_chatbot),
 ) -> StreamingResponse:
@@ -153,7 +153,3 @@ async def chat(
             "Connection": "keep-alive",
         },
     )
-
-
-# Apply rate limiting — same pattern as contact.py
-chat = limiter.limit(f"{settings.chat_rate_limit_per_minute}/minute")(chat)

@@ -6,12 +6,12 @@ Initializes the app, middleware, and routes.
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from starlette.middleware.base import RequestResponseEndpoint
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from app.config import settings
 from app.routes import contact, health, webhook_health, chat
@@ -19,18 +19,11 @@ from app.services.rag import RAGService
 from app.services.chatbot import ChatbotService, Session
 from app.utils.logger import setup_logging
 from app.utils.exceptions import WebhookError
+from app.middleware.rate_limit import limiter
 
 # Setup logging
 setup_logging()
 logger = logging.getLogger(__name__)
-
-
-# Rate limiter instance
-limiter = Limiter(
-    key_func=get_remote_address,
-    storage_uri=settings.rate_limit_storage_url,
-    default_limits=[f"{settings.rate_limit_per_hour}/hour"],
-)
 
 
 @asynccontextmanager
@@ -47,9 +40,16 @@ async def lifespan(app: FastAPI):
     )
 
     # Initialize RAG service (loads embedding model + builds ChromaDB index)
-    # This runs once at startup and takes ~3-8 seconds on first boot
+    # This runs once at startup and takes ~3-8 seconds on first boot.
+    # Wrapped in try/except so a Gemini API failure (missing key, quota, network)
+    # does NOT crash the server — chatbot degrades gracefully to no-context mode.
     rag_service = RAGService()
-    await rag_service.initialize()
+    try:
+        await rag_service.initialize()
+    except Exception as exc:
+        logger.error(
+            "RAG service initialization failed — chatbot will run without context: %s", exc
+        )
 
     # In-memory session store — dict keyed by session_id
     # Shared across all requests via app.state
@@ -94,6 +94,20 @@ app.add_middleware(
     allow_headers=settings.cors_allow_headers,
     max_age=settings.cors_max_age,
 )
+
+
+# Security headers middleware
+@app.middleware("http")
+async def security_headers_middleware(
+    request: Request, call_next: RequestResponseEndpoint
+) -> Response:
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    if settings.is_production:
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+    return response
 
 
 # Exception Handlers

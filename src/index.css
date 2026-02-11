@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap');
+/* Google Fonts loaded via <link> in index.html (non-blocking). @import removed. */
 
 @tailwind base;
 @tailwind components;
@@ -356,5 +356,19 @@ html {
 
   h2 {
     font-size: 1.2rem;
+  }
+}
+
+/* ── Chatbot: window open animation ── */
+@keyframes chatOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+    transform-origin: bottom right;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    transform-origin: bottom right;
   }
 }

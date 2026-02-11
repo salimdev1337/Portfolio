@@ -72,6 +72,17 @@ const LoadingScreen = ({ onComplete }) => {
     }, 300);
   };
 
+  // Wire up "press any key to continue" once the button is visible
+  useEffect(() => {
+    if (!showButton) return;
+
+    const handleKeyDown = () => handleStart();
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // handleStart is stable (no deps change) — intentionally omitted from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showButton]);
+
   return (
     <div className="fixed inset-0 z-50 bg-[var(--bg-primary)] flex items-center justify-center">
       <div className="container-custom max-w-2xl px-6 text-center">

@@ -89,3 +89,6 @@ htmlcov/
 
 # Misc
 .eslintcache
+
+# Security scan reports
+bandit-report.json

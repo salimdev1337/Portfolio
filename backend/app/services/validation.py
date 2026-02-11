@@ -4,16 +4,16 @@ Defense against XSS, SQL injection, and malicious input.
 """
 
 import re
-import bleach
-from typing import Dict, Any
+import bleach  # type: ignore[import-untyped]
+from typing import Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 # Allowed HTML tags (none for plain text forms)
-ALLOWED_TAGS = []
-ALLOWED_ATTRIBUTES = {}
+ALLOWED_TAGS: List[str] = []
+ALLOWED_ATTRIBUTES: Dict[str, Any] = {}
 
 
 class InputValidator:
@@ -36,7 +36,7 @@ class InputValidator:
             text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip=True
         )
 
-        return clean_text.strip()
+        return str(clean_text).strip()
 
     @staticmethod
     def validate_no_sql_injection(text: str) -> bool:

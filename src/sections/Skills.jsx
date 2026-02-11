@@ -189,6 +189,8 @@ const Skills = () => {
             <div key={category.id}>
               <button
                 onClick={() => toggleCategory(category.id)}
+                aria-expanded={expandedCategory === category.id}
+                aria-controls={`skill-panel-${category.id}`}
                 className={`
                   w-full px-4 py-3 border-2 transition-all duration-200 flex items-center justify-between
                   ${
@@ -199,18 +201,18 @@ const Skills = () => {
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{category.icon}</span>
+                  <span className="text-xl" aria-hidden="true">{category.icon}</span>
                   <span className="font-pixel text-[10px]">
                     {category.name}
                   </span>
                 </div>
-                <span className="font-pixel text-xs">
+                <span className="font-pixel text-xs" aria-hidden="true">
                   {expandedCategory === category.id ? '▼' : '▶'}
                 </span>
               </button>
 
               {expandedCategory === category.id && (
-                <Card className="mt-2 animate-fadeIn">
+                <Card id={`skill-panel-${category.id}`} className="mt-2 animate-fadeIn">
                   <div className="space-y-3">
                     {category.skills.map((skill, index) => (
                       <div key={index}>

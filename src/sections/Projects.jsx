@@ -142,6 +142,7 @@ const Projects = () => {
               <button
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
+                aria-pressed={activeFilter === filter.id}
                 className={`
                   font-pixel text-[10px] px-4 py-2 border-2 transition-all duration-200
                   ${
@@ -151,7 +152,7 @@ const Projects = () => {
                   }
                 `}
               >
-                <span className="mr-2">{filter.icon}</span>
+                <span className="mr-2" aria-hidden="true">{filter.icon}</span>
                 {filter.label}
               </button>
             ))}

@@ -83,7 +83,7 @@ describe('Projects Section', () => {
       const user = userEvent.setup();
       renderWithProviders(<Projects />);
 
-      const mobileButton = screen.getByRole('button', { name: /📱 mobile/i });
+      const mobileButton = screen.getByRole('button', { name: /mobile/i });
       await user.click(mobileButton);
 
       // Should show 2 projects: iTeamHub and MultiGame Platform
@@ -101,7 +101,7 @@ describe('Projects Section', () => {
       const user = userEvent.setup();
       renderWithProviders(<Projects />);
 
-      const webButton = screen.getByRole('button', { name: /🌐 web/i });
+      const webButton = screen.getByRole('button', { name: /web/i });
       await user.click(webButton);
 
       // Should show 3 projects: Co-op Platform, HelpDesk Pro, MediGuide AI
@@ -118,7 +118,7 @@ describe('Projects Section', () => {
       const user = userEvent.setup();
       renderWithProviders(<Projects />);
 
-      const gamingButton = screen.getByRole('button', { name: /🎮 gaming/i });
+      const gamingButton = screen.getByRole('button', { name: /gaming/i });
       await user.click(gamingButton);
 
       // Should show 1 project: MultiGame Platform
@@ -131,7 +131,7 @@ describe('Projects Section', () => {
       renderWithProviders(<Projects />);
 
       const enterpriseButton = screen.getByRole('button', {
-        name: /💼 enterprise/i,
+        name: /enterprise/i,
       });
       await user.click(enterpriseButton);
 
@@ -144,7 +144,7 @@ describe('Projects Section', () => {
       const user = userEvent.setup();
       renderWithProviders(<Projects />);
 
-      const aiButton = screen.getByRole('button', { name: /🤖 ai\/ml/i });
+      const aiButton = screen.getByRole('button', { name: /ai\/ml/i });
       await user.click(aiButton);
 
       // Should show 1 project: MediGuide AI
@@ -158,12 +158,12 @@ describe('Projects Section', () => {
 
       // HelpDesk Pro should appear in both Enterprise and Web
       const enterpriseButton = screen.getByRole('button', {
-        name: /💼 enterprise/i,
+        name: /enterprise/i,
       });
       await user.click(enterpriseButton);
       expect(screen.getByText(/HelpDesk Pro/i)).toBeInTheDocument();
 
-      const webButton = screen.getByRole('button', { name: /🌐 web/i });
+      const webButton = screen.getByRole('button', { name: /web/i });
       await user.click(webButton);
       expect(screen.getByText(/HelpDesk Pro/i)).toBeInTheDocument();
     });
@@ -173,13 +173,13 @@ describe('Projects Section', () => {
       renderWithProviders(<Projects />);
 
       // Filter to mobile first
-      const mobileButton = screen.getByRole('button', { name: /📱 mobile/i });
+      const mobileButton = screen.getByRole('button', { name: /mobile/i });
       await user.click(mobileButton);
       expect(screen.getByText(/showing 2 quests/i)).toBeInTheDocument();
 
       // Click "All Quests"
       const allQuestsButton = screen.getByRole('button', {
-        name: /⚔️ all quests/i,
+        name: /all quests/i,
       });
       await user.click(allQuestsButton);
 
@@ -197,9 +197,9 @@ describe('Projects Section', () => {
       renderWithProviders(<Projects />);
 
       const allQuestsButton = screen.getByRole('button', {
-        name: /⚔️ all quests/i,
+        name: /all quests/i,
       });
-      const mobileButton = screen.getByRole('button', { name: /📱 mobile/i });
+      const mobileButton = screen.getByRole('button', { name: /mobile/i });
 
       // Initially "All Quests" should be active
       expect(allQuestsButton).toHaveClass('bg-[var(--accent)]');
@@ -217,7 +217,7 @@ describe('Projects Section', () => {
       const user = userEvent.setup();
       renderWithProviders(<Projects />);
 
-      const gamingButton = screen.getByRole('button', { name: /🎮 gaming/i });
+      const gamingButton = screen.getByRole('button', { name: /gaming/i });
       await user.click(gamingButton);
 
       // Should say "quest" not "quests"

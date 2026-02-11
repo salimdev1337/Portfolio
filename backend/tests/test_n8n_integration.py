@@ -48,19 +48,17 @@ class TestN8NIntegration:
 
         assert "request_id" in webhook_payload
         assert "timestamp" in webhook_payload
-        assert "form_data" in webhook_payload
-        assert "metadata" in webhook_payload
+        assert "name" in webhook_payload
+        assert "source" in webhook_payload
 
-        # Verify form data was passed correctly
-        assert webhook_payload["form_data"]["name"] == "John Doe"
-        assert webhook_payload["form_data"]["email"] == "john@example.com"
-        assert webhook_payload["form_data"]["subject"] == "Project Inquiry"
-        assert webhook_payload["form_data"]["rating"] == 5
+        # Verify form data was passed correctly (flat payload structure)
+        assert webhook_payload["name"] == "John Doe"
+        assert webhook_payload["email"] == "john@example.com"
+        assert webhook_payload["subject"] == "Project Inquiry"
+        assert webhook_payload["rating"] == 5
 
-        # Verify metadata
-        metadata = webhook_payload["metadata"]
-        assert metadata["source"] == "portfolio_contact_form"
-        assert metadata["version"] == settings.api_version
+        # Verify source metadata
+        assert webhook_payload["source"] == "portfolio_contact_form"
 
     async def test_webhook_signature_generation(self, async_client, mock_n8n_webhook):
         """Test that webhook signatures are generated correctly."""
@@ -201,13 +199,12 @@ class TestN8NIntegration:
         call_args = mock_n8n_webhook.call_args
         payload = call_args.kwargs.get("json")
 
-        # Verify n8n workflow can extract these fields
-        form_data_payload = payload["form_data"]
-        assert form_data_payload["name"] == "Alice Smith"
-        assert form_data_payload["email"] == "alice@example.com"
-        assert form_data_payload["subject"] == "Bug Report"
-        assert form_data_payload["message"] == ("Found a bug in the contact form.")
-        assert form_data_payload["rating"] == 3
+        # Verify n8n workflow can extract these fields (flat payload structure)
+        assert payload["name"] == "Alice Smith"
+        assert payload["email"] == "alice@example.com"
+        assert payload["subject"] == "Bug Report"
+        assert payload["message"] == "Found a bug in the contact form."
+        assert payload["rating"] == 3
 
         # Verify timestamp format (ISO 8601)
         timestamp = payload["timestamp"]
@@ -269,11 +266,11 @@ class TestN8NIntegration:
         call_args = mock_n8n_webhook.call_args
         payload = call_args.kwargs.get("json")
 
-        assert payload["form_data"]["name"] == "José García-López"
-        assert "🎮" in payload["form_data"]["subject"]
+        assert payload["name"] == "José García-López"
+        assert "🎮" in payload["subject"]
         # Note: Newlines are sanitized to spaces by the validator
-        assert "line breaks" in payload["form_data"]["message"]
-        assert "tabs" in payload["form_data"]["message"]
+        assert "line breaks" in payload["message"]
+        assert "tabs" in payload["message"]
 
     async def test_webhook_error_response_handling(self, async_client):
         """Test handling of n8n error responses."""
