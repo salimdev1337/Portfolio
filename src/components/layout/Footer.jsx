@@ -89,10 +89,10 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[var(--bg-secondary)] border-t-3 border-[var(--border)] pt-20">
+    <footer className="bg-[var(--bg-secondary)] border-t-3 border-[var(--border)] pt-10 sm:pt-20">
       <div className="container-custom pb-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
           {/* Brand Section */}
           <div>
             <h3 className="font-pixel text-[14px] text-[var(--accent)] mb-4">

@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const OPENING_MESSAGE = {
   role: 'assistant',
   content:
-    "Greetings, adventurer! I'm Salim's digital companion. Ask me anything about his quests — skills, projects, or experience! ⚔️",
+    "Greetings, adventurer! I'm Salim's digital companion. Ask me anything about his quests — skills, projects, or experience! ⚔️\n\n⏳ Heads up: the backend runs on Render's free tier, so the first response may take ~30s to wake up. Sorry for the wait!",
 };
 
 export function useChatbot() {

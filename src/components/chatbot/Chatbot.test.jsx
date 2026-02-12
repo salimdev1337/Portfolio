@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import PixelDots from './PixelDots';
@@ -167,6 +167,26 @@ describe('ChatWindow', () => {
     await userEvent.type(input, 'Hello');
     await userEvent.click(screen.getByRole('button', { name: /▶/i }));
     expect(input).toHaveValue('');
+  });
+
+  it('calls onClose when swiped down more than 80px', () => {
+    const { container } = render(<ChatWindow {...defaultProps} />);
+    const chatDiv = container.firstChild;
+
+    fireEvent.touchStart(chatDiv, { touches: [{ clientY: 100 }] });
+    fireEvent.touchEnd(chatDiv, { changedTouches: [{ clientY: 190 }] });
+
+    expect(defaultProps.onClose).toHaveBeenCalled();
+  });
+
+  it('does not call onClose when swiped down less than 80px', () => {
+    const { container } = render(<ChatWindow {...defaultProps} />);
+    const chatDiv = container.firstChild;
+
+    fireEvent.touchStart(chatDiv, { touches: [{ clientY: 100 }] });
+    fireEvent.touchEnd(chatDiv, { changedTouches: [{ clientY: 150 }] });
+
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
   });
 });
 

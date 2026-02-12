@@ -32,7 +32,7 @@ const ProjectCard = ({ project }) => {
     <Card className="flex flex-col h-full hover:transform hover:scale-105 transition-transform duration-200 group">
       {/* Project Image/Preview */}
       {image && (
-        <div className="mb-4 w-full h-48 bg-[var(--bg-primary)] border-2 border-[var(--border)] flex items-center justify-center overflow-hidden pixel-corners">
+        <div className="mb-4 w-full h-32 sm:h-40 md:h-48 bg-[var(--bg-primary)] border-2 border-[var(--border)] flex items-center justify-center overflow-hidden pixel-corners">
           {/* Placeholder for project screenshot */}
           <div className="text-6xl opacity-50 group-hover:scale-110 transition-transform duration-300">
             {getCategoryIcon(categories[0])}

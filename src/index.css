@@ -64,6 +64,9 @@ body {
   transition:
     background-color var(--transition-normal),
     color var(--transition-normal);
+  /* iOS notch / side insets */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 h1,
@@ -177,10 +180,16 @@ html {
 .pixel-card {
   border: 3px solid var(--border);
   background: var(--bg-secondary);
-  padding: var(--space-lg);
+  padding: var(--space-md); /* 16px on mobile */
   transition:
     transform var(--transition-fast),
     box-shadow var(--transition-fast);
+}
+
+@media (min-width: 640px) {
+  .pixel-card {
+    padding: var(--space-lg); /* 24px on sm+ */
+  }
 }
 
 .pixel-card:hover {
@@ -371,4 +380,43 @@ html {
     transform: scale(1);
     transform-origin: bottom right;
   }
+}
+
+/* ============================================
+   MOBILE SAFE AREA & DYNAMIC VIEWPORT
+   ============================================ */
+
+/* Chatbot full-screen on mobile — dynamic viewport height collapses
+   when iOS browser chrome is visible; safe area insets avoid notch/home-bar */
+.chat-safe-container {
+  height: 100vh; /* fallback */
+  height: 100dvh; /* collapses with browser chrome on iOS */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(keyboard-inset-height, env(safe-area-inset-bottom, 0px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Desktop reset — fixed dimensions override dvh above md breakpoint */
+.chat-safe-container-reset {
+  height: 520px;
+  padding: 0;
+}
+
+/* Input row stays above virtual keyboard + home indicator */
+.chat-input-safe {
+  padding-bottom: env(keyboard-inset-height, env(safe-area-inset-bottom, 0px));
+}
+
+/* Momentum scrolling for chatbot messages on iOS WebKit */
+.chat-messages-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Body scroll lock while nav drawer is open */
+.drawer-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }

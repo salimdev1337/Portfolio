@@ -123,7 +123,7 @@ const Projects = () => {
           ref={headerRef}
           className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
-          <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
+          <h2 className="font-pixel text-xl sm:text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<COMPLETED_QUESTS/>'}
           </h2>
           <p className="font-mono text-sm text-[var(--text-secondary)] max-w-2xl mx-auto">
@@ -137,14 +137,14 @@ const Projects = () => {
           ref={filterRef}
           className={`mb-8 overflow-x-auto pb-2 ${filterVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
-          <div className="flex gap-3 justify-center flex-wrap min-w-max px-4 md:px-0">
+          <div className="flex gap-2 sm:gap-3 justify-center flex-wrap px-2 sm:px-4 md:px-0">
             {filters.map(filter => (
               <button
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
                 aria-pressed={activeFilter === filter.id}
                 className={`
-                  font-pixel text-[10px] px-4 py-2 border-2 transition-all duration-200
+                  font-pixel text-[10px] px-3 sm:px-4 py-2.5 sm:py-2 min-h-[44px] border-2 transition-all duration-200
                   ${
                     activeFilter === filter.id
                       ? 'bg-[var(--accent)] text-white border-[var(--accent)] pixel-corners shadow-[2px_2px_0_var(--border)]'
@@ -170,7 +170,7 @@ const Projects = () => {
         {/* Projects Grid */}
         <div
           ref={gridRef}
-          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${gridVisible ? 'scroll-visible' : 'scroll-hidden'}`}
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${gridVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
           {filteredProjects.map(project => (
             <div key={project.id} className="animate-fadeIn">

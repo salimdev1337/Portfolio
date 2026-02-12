@@ -85,18 +85,8 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
 
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.allowed_origins_list,
-    allow_credentials=settings.cors_allow_credentials,
-    allow_methods=settings.cors_allow_methods,
-    allow_headers=settings.cors_allow_headers,
-    max_age=settings.cors_max_age,
-)
-
-
-# Security headers middleware
+# Security headers middleware — must be registered BEFORE CORSMiddleware so that
+# CORS is the outermost layer and adds its headers even on error responses.
 @app.middleware("http")
 async def security_headers_middleware(
     request: Request, call_next: RequestResponseEndpoint
@@ -108,6 +98,18 @@ async def security_headers_middleware(
     if settings.is_production:
         response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
     return response
+
+
+# CORS Middleware — added last so it wraps everything and is always outermost.
+# This ensures Access-Control-Allow-Origin is present even on error responses.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins_list,
+    allow_credentials=settings.cors_allow_credentials,
+    allow_methods=settings.cors_allow_methods,
+    allow_headers=settings.cors_allow_headers,
+    max_age=settings.cors_max_age,
+)
 
 
 # Exception Handlers
@@ -154,8 +156,18 @@ async def webhook_exception_handler(request: Request, exc: WebhookError):
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    """Handle unexpected errors."""
+    """Handle unexpected errors.
+
+    NOTE: This handler is registered on ServerErrorMiddleware which sits *outside*
+    CORSMiddleware, so we must inject the CORS header manually — otherwise the
+    browser sees a CORS error instead of the real 500.
+    """
     logger.exception("Unexpected error", extra={"error": str(exc), "path": request.url.path})
+
+    headers = {}
+    origin = request.headers.get("origin")
+    if origin and origin in settings.allowed_origins_list:
+        headers["Access-Control-Allow-Origin"] = origin
 
     return JSONResponse(
         status_code=500,
@@ -164,6 +176,7 @@ async def general_exception_handler(request: Request, exc: Exception):
             "message": "An unexpected error occurred. Please try again later.",
             "error_code": "INTERNAL_ERROR",
         },
+        headers=headers,
     )
 
 

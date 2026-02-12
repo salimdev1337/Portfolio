@@ -46,10 +46,10 @@ const Hero = () => {
           }}
         ></div>
 
-        {/* Floating pixels */}
-        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-[var(--accent)] opacity-40 animate-float"></div>
+        {/* Floating pixels — hide 2 on mobile to avoid content overlap */}
+        <div className="hidden sm:block absolute top-1/4 left-1/4 w-3 h-3 bg-[var(--accent)] opacity-40 animate-float"></div>
         <div
-          className="absolute top-1/3 right-1/4 w-2 h-2 bg-[var(--success)] opacity-30 animate-float"
+          className="hidden sm:block absolute top-1/3 right-1/4 w-2 h-2 bg-[var(--success)] opacity-30 animate-float"
           style={{ animationDelay: '1s' }}
         ></div>
         <div
@@ -60,7 +60,7 @@ const Hero = () => {
 
       <div className="container-custom text-center relative z-10">
         {/* Main Title with typing animation */}
-        <h1 className="font-pixel text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[var(--accent)] mb-6 glitch">
+        <h1 className="font-pixel text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-[var(--accent)] mb-6 glitch leading-tight">
           {displayedText}
           {!isTypingComplete && <span className="animate-blink">|</span>}
         </h1>
@@ -86,7 +86,7 @@ const Hero = () => {
 
           {/* Call-to-Action Buttons */}
           <div
-            className="flex gap-4 justify-center flex-wrap px-4 animate-fadeIn"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center flex-wrap px-4 animate-fadeIn"
             style={{ animationDelay: '0.4s' }}
           >
             <Button
@@ -120,7 +120,7 @@ const Hero = () => {
             style={{ animationDelay: '0.6s' }}
           >
             <div className="w-3 h-3 bg-[var(--success)] rounded-full animate-pulse"></div>
-            <span className="font-mono text-sm text-[var(--text-primary)]">
+            <span className="font-mono text-xs sm:text-sm text-[var(--text-primary)]">
               Available for 6-month internship
             </span>
             <span className="font-pixel text-[8px] text-[#1A1A1A] bg-[var(--accent)] px-2 py-1">

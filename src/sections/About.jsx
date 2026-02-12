@@ -81,7 +81,7 @@ const About = () => {
           ref={headerRef}
           className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
-          <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
+          <h2 className="font-pixel text-xl sm:text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<ABOUT_ME/>'}
           </h2>
           <p className="font-mono text-sm text-[var(--text-secondary)] max-w-2xl mx-auto">
@@ -92,14 +92,14 @@ const About = () => {
 
         <div
           ref={statsRef}
-          className={`grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 ${statsVisible ? 'scroll-visible' : 'scroll-hidden'}`}
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12 ${statsVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
           {/* Left Column - Portrait & Bio */}
           <div className="lg:col-span-1">
             <Card className="text-center">
               {/* Pixel Portrait Placeholder */}
-              <div className="mb-6 mx-auto w-48 h-48 bg-[var(--accent)] bg-opacity-20 border-4 border-[var(--border)] pixel-corners flex items-center justify-center relative overflow-hidden">
-                <div className="text-8xl">👨‍💻</div>
+              <div className="mb-6 mx-auto w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 bg-[var(--accent)] bg-opacity-20 border-4 border-[var(--border)] pixel-corners flex items-center justify-center relative overflow-hidden">
+                <div className="text-5xl sm:text-6xl md:text-8xl">👨‍💻</div>
                 {/* Idle animation indicator */}
                 <div className="absolute bottom-2 right-2">
                   <div className="flex gap-1">

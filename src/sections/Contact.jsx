@@ -194,14 +194,14 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="section-padding pb-40 mb-20">
+    <section id="contact" className="section-padding pb-24 sm:pb-40 mb-0 sm:mb-20">
       <div className="container-custom">
         {/* Section Header */}
         <div
           ref={headerRef}
           className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
-          <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
+          <h2 className="font-pixel text-xl sm:text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<CONTACT_ME/>'}
           </h2>
           <p className="font-mono text-sm text-[var(--text-secondary)] max-w-2xl mx-auto">
@@ -209,16 +209,25 @@ const Contact = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
           {/* Contact Form */}
           <div
             ref={formRef}
             className={formVisible ? 'scroll-visible' : 'scroll-hidden'}
           >
             <Card>
-              <h3 className="font-pixel text-sm text-[var(--accent)] mb-6">
+              <h3 className="font-pixel text-sm text-[var(--accent)] mb-4">
                 {'> SEND_MESSAGE'}
               </h3>
+
+              {/* Cold start notice — backend on Render free tier */}
+              <div className="mb-5 px-3 py-2 border border-[var(--border)] bg-[var(--bg-primary)] flex items-start gap-2">
+                <span className="text-sm mt-px" aria-hidden="true">⏳</span>
+                <p className="font-mono text-[10px] text-[var(--text-secondary)] leading-relaxed">
+                  Backend runs on Render&apos;s free tier — first submission may take ~30s to wake up.
+                  Sorry for the wait!
+                </p>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name Input */}

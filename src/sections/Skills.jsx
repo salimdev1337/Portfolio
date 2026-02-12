@@ -88,7 +88,7 @@ const Skills = () => {
           ref={headerRef}
           className={`text-center mb-12 ${headerVisible ? 'scroll-visible' : 'scroll-hidden'}`}
         >
-          <h2 className="font-pixel text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
+          <h2 className="font-pixel text-xl sm:text-3xl md:text-4xl text-[var(--text-primary)] mb-4">
             {'<SKILL_TREE/>'}
           </h2>
           <p className="font-mono text-sm text-[var(--text-secondary)] max-w-2xl mx-auto">
@@ -257,7 +257,7 @@ const Skills = () => {
             <h3 className="font-pixel text-sm text-[var(--accent)] mb-4">
               {'> OVERALL_STATS'}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               <div>
                 <div className="text-3xl mb-2">💻</div>
                 <div className="font-mono text-2xl text-[var(--accent)] mb-1">

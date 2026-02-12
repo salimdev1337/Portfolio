@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../tests/helpers/testUtils';
 import Navbar from './Navbar';
@@ -21,10 +21,10 @@ describe('Navbar Component', () => {
     it('should render all navigation links', () => {
       renderWithProviders(<Navbar />);
 
-      expect(screen.getByText('ABOUT')).toBeInTheDocument();
-      expect(screen.getByText('PROJECTS')).toBeInTheDocument();
-      expect(screen.getByText('SKILLS')).toBeInTheDocument();
-      expect(screen.getByText('CONTACT')).toBeInTheDocument();
+      expect(screen.getAllByText('ABOUT')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('PROJECTS')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('SKILLS')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('CONTACT')[0]).toBeInTheDocument();
     });
 
     it('should render theme toggle button', () => {
@@ -37,7 +37,7 @@ describe('Navbar Component', () => {
     it('should render hamburger menu button on mobile', () => {
       renderWithProviders(<Navbar />);
 
-      const hamburgerButton = screen.getByLabelText(/toggle menu/i);
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
       expect(hamburgerButton).toBeInTheDocument();
     });
   });
@@ -140,19 +140,17 @@ describe('Navbar Component', () => {
       const user = userEvent.setup();
       const { container } = renderWithProviders(<Navbar />);
 
-      const hamburgerButton = screen.getByLabelText(/toggle menu/i);
-      const mobileMenuContainer = container.querySelector(
-        '.md\\:hidden.overflow-hidden'
-      );
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
+      const drawer = container.querySelector('[role="dialog"]');
 
       // Initially closed
-      expect(mobileMenuContainer).toHaveClass('max-h-0');
+      expect(drawer).toHaveClass('translate-x-full');
 
       // Open menu
       await user.click(hamburgerButton);
 
       await waitFor(() => {
-        expect(mobileMenuContainer).toHaveClass('max-h-96');
+        expect(drawer).toHaveClass('translate-x-0');
       });
     });
 
@@ -160,21 +158,19 @@ describe('Navbar Component', () => {
       const user = userEvent.setup();
       const { container } = renderWithProviders(<Navbar />);
 
-      const hamburgerButton = screen.getByLabelText(/toggle menu/i);
-      const mobileMenuContainer = container.querySelector(
-        '.md\\:hidden.overflow-hidden'
-      );
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
+      const drawer = container.querySelector('[role="dialog"]');
 
       // Open menu
       await user.click(hamburgerButton);
       await waitFor(() => {
-        expect(mobileMenuContainer).toHaveClass('max-h-96');
+        expect(drawer).toHaveClass('translate-x-0');
       });
 
       // Close menu
       await user.click(hamburgerButton);
       await waitFor(() => {
-        expect(mobileMenuContainer).toHaveClass('max-h-0');
+        expect(drawer).toHaveClass('translate-x-full');
       });
     });
 
@@ -182,38 +178,41 @@ describe('Navbar Component', () => {
       const user = userEvent.setup();
       const { container } = renderWithProviders(<Navbar />);
 
-      const hamburgerButton = screen.getByLabelText(/toggle menu/i);
-      const mobileMenuContainer = container.querySelector(
-        '.md\\:hidden.overflow-hidden'
-      );
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
+      const drawer = container.querySelector('[role="dialog"]');
 
       // Open menu
       await user.click(hamburgerButton);
       await waitFor(() => {
-        expect(mobileMenuContainer).toHaveClass('max-h-96');
+        expect(drawer).toHaveClass('translate-x-0');
       });
 
       // Click a mobile menu link
-      const mobileLinks = screen.getAllByText('> ABOUT');
-      await user.click(mobileLinks[0]);
+      const aboutDrawerLink = container.querySelector('[role="dialog"] a[href="#about"]');
+      await user.click(aboutDrawerLink);
 
       await waitFor(() => {
-        expect(mobileMenuContainer).toHaveClass('max-h-0');
+        expect(drawer).toHaveClass('translate-x-full');
       });
     });
 
     it('should display mobile links with arrow prefix', async () => {
       const user = userEvent.setup();
-      renderWithProviders(<Navbar />);
+      const { container } = renderWithProviders(<Navbar />);
 
-      const hamburgerButton = screen.getByLabelText(/toggle menu/i);
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
       await user.click(hamburgerButton);
 
       await waitFor(() => {
-        expect(screen.getByText('> ABOUT')).toBeInTheDocument();
-        expect(screen.getByText('> PROJECTS')).toBeInTheDocument();
-        expect(screen.getByText('> SKILLS')).toBeInTheDocument();
-        expect(screen.getByText('> CONTACT')).toBeInTheDocument();
+        const drawerLinks = container.querySelectorAll('[role="dialog"] nav a');
+        expect(drawerLinks).toHaveLength(4);
+        Array.from(drawerLinks).forEach(link => {
+          expect(link.querySelector('span')).toHaveTextContent('>');
+        });
+        expect(drawerLinks[0]).toHaveTextContent('ABOUT');
+        expect(drawerLinks[1]).toHaveTextContent('PROJECTS');
+        expect(drawerLinks[2]).toHaveTextContent('SKILLS');
+        expect(drawerLinks[3]).toHaveTextContent('CONTACT');
       });
     });
   });
@@ -255,7 +254,7 @@ describe('Navbar Component', () => {
     it('should have mobile menu button visible', () => {
       renderWithProviders(<Navbar />);
 
-      const hamburgerButton = screen.getByLabelText(/toggle menu/i);
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
       expect(hamburgerButton).toBeInTheDocument();
     });
   });
@@ -276,6 +275,54 @@ describe('Navbar Component', () => {
       const nav = container.querySelector('nav');
       expect(nav).toHaveClass('left-0');
       expect(nav).toHaveClass('right-0');
+    });
+  });
+
+  describe('Keyboard Interaction', () => {
+    it('should close drawer when Escape key is pressed', async () => {
+      const user = userEvent.setup();
+      const { container } = renderWithProviders(<Navbar />);
+
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
+      const drawer = container.querySelector('[role="dialog"]');
+
+      await user.click(hamburgerButton);
+      await waitFor(() => expect(drawer).toHaveClass('translate-x-0'));
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(drawer).toHaveClass('translate-x-full'));
+    });
+  });
+
+  describe('Drawer Touch Interaction', () => {
+    it('should close drawer when swiped left more than 60px', async () => {
+      const { container } = renderWithProviders(<Navbar />);
+
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
+      const drawer = container.querySelector('[role="dialog"]');
+
+      fireEvent.click(hamburgerButton);
+      await waitFor(() => expect(drawer).toHaveClass('translate-x-0'));
+
+      fireEvent.touchStart(drawer, { touches: [{ clientX: 200 }] });
+      fireEvent.touchEnd(drawer, { changedTouches: [{ clientX: 130 }] });
+
+      await waitFor(() => expect(drawer).toHaveClass('translate-x-full'));
+    });
+
+    it('should not close drawer when swiped left less than 60px', async () => {
+      const { container } = renderWithProviders(<Navbar />);
+
+      const hamburgerButton = screen.getByLabelText(/open navigation menu/i);
+      const drawer = container.querySelector('[role="dialog"]');
+
+      fireEvent.click(hamburgerButton);
+      await waitFor(() => expect(drawer).toHaveClass('translate-x-0'));
+
+      fireEvent.touchStart(drawer, { touches: [{ clientX: 200 }] });
+      fireEvent.touchEnd(drawer, { changedTouches: [{ clientX: 160 }] });
+
+      await waitFor(() => expect(drawer).toHaveClass('translate-x-0'));
     });
   });
 

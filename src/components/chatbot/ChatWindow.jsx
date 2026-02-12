@@ -47,8 +47,8 @@ export default function ChatWindow({ messages, isTyping, isLimitReached, error, 
     <div
       className="
         fixed z-50 flex flex-col
-        inset-0
-        md:inset-auto md:bottom-24 md:right-6 md:w-[380px] md:h-[520px]
+        inset-0 chat-safe-container
+        md:inset-auto md:bottom-24 md:right-6 md:w-[380px] md:h-[520px] md:chat-safe-container-reset
         bg-[var(--bg-primary)] border-2 border-[var(--accent)]
       "
       style={{ borderRadius: 0, boxShadow: '4px 4px 0 var(--accent)', animation: 'chatOpen 0.2s ease-out' }}
@@ -74,7 +74,7 @@ export default function ChatWindow({ messages, isTyping, isLimitReached, error, 
       </div>
 
       {/* ── Messages ── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 chat-messages-scroll">
         {messages.map((msg, i) => (
           <ChatMessage key={i} role={msg.role} content={msg.content} />
         ))}
@@ -92,7 +92,7 @@ export default function ChatWindow({ messages, isTyping, isLimitReached, error, 
       )}
 
       {/* ── Input area ── */}
-      <div className="flex-shrink-0 border-t-2 border-[var(--accent)] bg-[var(--bg-secondary)]">
+      <div className="flex-shrink-0 border-t-2 border-[var(--accent)] bg-[var(--bg-secondary)] chat-input-safe">
         {isLimitReached ? (
           // Session limit hit — point user to contact form
           <p

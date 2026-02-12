@@ -12,14 +12,19 @@ export default function Chatbot() {
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className="
-          fixed bottom-6 right-6 z-40
+          fixed z-40
           w-16 h-16
           bg-[var(--bg-secondary)] border-2 border-[var(--accent)]
           flex items-center justify-center
           hover:bg-[var(--accent)] hover:scale-110
           transition-all duration-200
         "
-        style={{ borderRadius: 0, boxShadow: '3px 3px 0 var(--accent)' }}
+        style={{
+          borderRadius: 0,
+          boxShadow: '3px 3px 0 var(--accent)',
+          bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
+          right: 'calc(1.5rem + env(safe-area-inset-right, 0px))',
+        }}
         aria-label={isOpen ? 'Close chatbot' : 'Open chatbot'}
         aria-expanded={isOpen}
       >

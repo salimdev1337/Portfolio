@@ -215,7 +215,11 @@ SECRET_KEY=your-secret-key-here
 N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/contact
 ALLOWED_ORIGINS=https://[your-username].github.io,http://localhost:5173
 APP_ENV=production
+GEMINI_API_KEY=your-gemini-api-key-here
 ```
+
+> ⚠️ **`GEMINI_API_KEY` must be set on Render.** Without it the RAG service skips
+> initialization (server still boots — chatbot runs in no-context mode).
 
 - Generate secret: `python -c "import secrets; print(secrets.token_hex(32))"`
 - Never commit `.env` — always provide `.env.example`
@@ -311,7 +315,7 @@ After each meaningful commit, Claude **must** update this file to reflect the cu
 
 ---
 
-**Last Updated:** 2026-02-11
+**Last Updated:** 2026-02-12
 **Stack:** React + Tailwind + FastAPI + GitHub Pages + Render
 
 ## Recent Changes (2026-02-11) — CI/CD Fix Pass
@@ -357,3 +361,24 @@ After each meaningful commit, Claude **must** update this file to reflect the cu
 ### Environment Variables Added
 - Backend: `REDIS_URL` — set to Redis connection string for persistent rate limiting (optional, defaults to memory)
 - Frontend: No new vars
+
+## Recent Changes (2026-02-12) — Render deploy fix + mobile navbar
+
+### Backend
+- `main.py`: Wrapped `await rag_service.initialize()` in `try/except` — a Gemini API
+  failure (missing key, 404, network error) no longer crashes the server at startup.
+  Chatbot degrades gracefully to no-context mode; `RAGService.query()` already returns
+  `[]` when `not self._initialized`.
+- `services/rag.py`: Cast `response.json()["embedding"]["values"]` to `list()` to fix
+  mypy `no-any-return` error.
+
+### Frontend
+- `components/layout/Navbar.jsx`: Fixed transparent background when mobile menu opens at
+  page top (nav now applies solid bg when `isMenuOpen || isScrolled`). Added
+  close-on-outside-click (`mousedown` + `touchstart`), Escape key dismiss, and
+  `aria-expanded` on hamburger button. Removed unused `Button` import.
+
+### Known issue — GEMINI_API_KEY on Render
+`GEMINI_API_KEY` **must** be set as an environment variable in the Render dashboard.
+Without it the RAG/chatbot initialization is skipped (server boots fine, chatbot has no
+knowledge-base context). See Environment Variables section above.
