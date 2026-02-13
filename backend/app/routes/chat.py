@@ -40,7 +40,10 @@ router = APIRouter()
 
 def get_chatbot(request: Request) -> ChatbotService:
     """Dependency: pull the ChatbotService from app.state (set at startup)."""
-    return cast(ChatbotService, request.app.state.chatbot_service)
+    service = getattr(request.app.state, "chatbot_service", None)
+    if service is None:
+        raise HTTPException(status_code=503, detail="Chatbot service unavailable")
+    return cast(ChatbotService, service)
 
 
 @router.post(

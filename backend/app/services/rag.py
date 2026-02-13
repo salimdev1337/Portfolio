@@ -19,7 +19,7 @@ KNOWLEDGE_DIR = Path(__file__).parent.parent.parent / "knowledge"
 # embedContent (single). We fan out concurrent single calls for batch work.
 _EMBED_URL = (
     "https://generativelanguage.googleapis.com"
-    "/v1beta/models/text-embedding-004:embedContent"
+    "/v1beta/models/gemini-embedding-001:embedContent"
 )
 
 # ChromaDB collection name

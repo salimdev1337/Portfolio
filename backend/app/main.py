@@ -58,7 +58,13 @@ async def lifespan(app: FastAPI):
     # Initialize chatbot service with the RAG service and shared session store
     app.state.rag_service = rag_service
     app.state.sessions = sessions
-    app.state.chatbot_service = ChatbotService(rag_service, sessions)
+    try:
+        app.state.chatbot_service = ChatbotService(rag_service, sessions)
+    except Exception as exc:
+        logger.error(
+            "ChatbotService initialization failed — /api/chat will return 503: %s", exc
+        )
+        app.state.chatbot_service = None
 
     yield
 

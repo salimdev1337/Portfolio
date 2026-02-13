@@ -137,7 +137,7 @@ const Contact = () => {
 
     try {
       // Get API URL from environment variables
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
       // Call backend API
       const response = await fetch(`${apiUrl}/api/contact`, {
