@@ -14,7 +14,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
-from app.routes import contact, health, webhook_health, chat
+from app.routes import contact, health, webhook_health, chat, tts
 from app.services.rag import RAGService
 from app.services.chatbot import ChatbotService, Session
 from app.utils.logger import setup_logging
@@ -191,6 +191,7 @@ app.include_router(health.router, prefix="", tags=["Health"])
 app.include_router(contact.router, prefix="/api", tags=["Contact"])
 app.include_router(webhook_health.router, prefix="/api", tags=["Webhook"])
 app.include_router(chat.router, prefix="/api", tags=["Chat"])
+app.include_router(tts.router, prefix="/api", tags=["TTS"])
 
 
 # Root endpoint

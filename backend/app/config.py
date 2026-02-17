@@ -60,6 +60,13 @@ class Settings(BaseSettings):
     chat_max_sessions: int = Field(1000, validation_alias="CHAT_MAX_SESSIONS", ge=1)
     chat_session_ttl_minutes: int = Field(30, validation_alias="CHAT_SESSION_TTL_MINUTES", ge=1)
 
+    # ElevenLabs TTS
+    elevenlabs_api_key: str = Field("", validation_alias="ELEVENLABS_API_KEY")
+    elevenlabs_voice_id: str = Field(
+        "21m00Tcm4TlvDq8ikWAM",  # "Rachel" — free ElevenLabs voice
+        validation_alias="ELEVENLABS_VOICE_ID",
+    )
+
     # Logging
     log_level: str = Field("INFO", validation_alias="LOG_LEVEL")
     log_format: str = "json"  # json or text

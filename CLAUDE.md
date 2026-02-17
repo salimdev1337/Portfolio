@@ -216,6 +216,8 @@ N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/contact
 ALLOWED_ORIGINS=https://[your-username].github.io,http://localhost:5173
 APP_ENV=production
 GEMINI_API_KEY=your-gemini-api-key-here
+ELEVENLABS_API_KEY=your-elevenlabs-api-key-here   # optional — leave empty to disable TTS
+ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM          # optional — defaults to Rachel
 ```
 
 > ⚠️ **`GEMINI_API_KEY` must be set on Render.** Without it the RAG service skips
@@ -315,7 +317,7 @@ After each meaningful commit, Claude **must** update this file to reflect the cu
 
 ---
 
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-02-17
 **Stack:** React + Tailwind + FastAPI + GitHub Pages + Render
 
 ## Recent Changes (2026-02-11) — CI/CD Fix Pass
@@ -361,6 +363,39 @@ After each meaningful commit, Claude **must** update this file to reflect the cu
 ### Environment Variables Added
 - Backend: `REDIS_URL` — set to Redis connection string for persistent rate limiting (optional, defaults to memory)
 - Frontend: No new vars
+
+## Recent Changes (2026-02-17) — Voice chat (STT + TTS)
+
+### Backend
+- `config.py`: Added `ELEVENLABS_API_KEY` (optional, defaults `""`) and `ELEVENLABS_VOICE_ID`
+  (optional, defaults to `"21m00Tcm4TlvDq8ikWAM"` — Rachel voice) settings.
+- `routes/tts.py`: **New** `POST /api/tts` endpoint. Proxies text to ElevenLabs and streams
+  `audio/mpeg` back. Returns 503 silently when API key is not configured. Text capped at 800
+  chars to protect free-tier credits. Rate limited at `chat_rate_limit_per_minute/minute`.
+- `main.py`: Registered `tts.router` at `/api`.
+
+### Frontend
+- `src/utils/useVoice.js`: **New** hook managing STT (Web Speech API) and TTS (ElevenLabs via
+  backend). Exports `{ isListening, isSpeaking, voiceSupported, startListening, stopListening,
+  speak, stopSpeaking }`.
+- `src/utils/useChatbot.js`: Added optional `onMessageComplete(text)` callback — called after
+  the SSE `done` event with the full assembled bot response.
+- `src/components/chatbot/Chatbot.jsx`: Initializes `useVoice()`, manages `voiceEnabled` state,
+  wires `onMessageComplete` → `speak()` when voice is enabled. Passes voice state + handlers
+  to `ChatWindow`.
+- `src/components/chatbot/ChatWindow.jsx`: New props `isListening`, `isSpeaking`, `voiceEnabled`,
+  `voiceSupported`, `onMicClick`, `onVoiceToggle`. Adds `[VOC]` toggle button in header (lit
+  in accent color when enabled, shows `[♪]` while speaking). Adds `[MIC]` button in input row
+  (red + pulsing while listening, hidden when browser lacks SpeechRecognition support).
+
+### Environment Variables Added
+- Backend: `ELEVENLABS_API_KEY` — ElevenLabs API key (leave empty to disable TTS gracefully)
+- Backend: `ELEVENLABS_VOICE_ID` — ElevenLabs voice ID (optional, defaults to Rachel)
+
+### Graceful Degradation
+- No `ELEVENLABS_API_KEY` → `/api/tts` returns 503 → frontend skips audio silently
+- Browser without `SpeechRecognition` → mic button hidden entirely
+- TTS fetch fails → warning logged, chat continues normally
 
 ## Recent Changes (2026-02-12) — Render deploy fix + mobile navbar
 

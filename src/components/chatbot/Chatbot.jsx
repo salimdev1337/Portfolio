@@ -1,10 +1,34 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import ChatWindow from './ChatWindow';
 import { useChatbot } from '../../utils/useChatbot';
+import { useVoice, voiceSupported } from '../../utils/useVoice';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, isTyping, isLimitReached, error, sendMessage } = useChatbot();
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+
+  const { isListening, isSpeaking, startListening, stopListening, speak } = useVoice();
+
+  const handleMessageComplete = useCallback(
+    (text) => {
+      if (voiceEnabled) speak(text);
+    },
+    [voiceEnabled, speak]
+  );
+
+  const { messages, isTyping, isLimitReached, error, sendMessage } = useChatbot({
+    onMessageComplete: handleMessageComplete,
+  });
+
+  const handleMicClick = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening((transcript) => {
+        sendMessage(transcript);
+      });
+    }
+  }, [isListening, startListening, stopListening, sendMessage]);
 
   return (
     <>
@@ -50,6 +74,12 @@ export default function Chatbot() {
           error={error}
           onSend={sendMessage}
           onClose={() => setIsOpen(false)}
+          isListening={isListening}
+          isSpeaking={isSpeaking}
+          voiceEnabled={voiceEnabled}
+          voiceSupported={voiceSupported}
+          onMicClick={handleMicClick}
+          onVoiceToggle={() => setVoiceEnabled((prev) => !prev)}
         />
       )}
     </>

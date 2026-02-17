@@ -9,7 +9,7 @@ const OPENING_MESSAGE = {
     "Greetings, adventurer! I'm Salim's digital companion. Ask me anything about his quests — skills, projects, or experience! ⚔️\n\n⏳ Heads up: the backend runs on Render's free tier, so the first response may take ~30s to wake up. Sorry for the wait!",
 };
 
-export function useChatbot() {
+export function useChatbot({ onMessageComplete } = {}) {
   const [messages, setMessages] = useState([OPENING_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState(null);
@@ -78,6 +78,16 @@ export function useChatbot() {
                 setSessionId(data.session_id);
                 setMessageCount(data.message_count);
                 setIsLimitReached(data.is_limit_reached);
+                // Capture the full bot response and notify the caller (e.g. for TTS)
+                if (onMessageComplete) {
+                  setMessages((prev) => {
+                    const last = prev[prev.length - 1];
+                    if (last?.role === 'assistant') {
+                      onMessageComplete(last.content);
+                    }
+                    return prev;
+                  });
+                }
               }
             } catch {
               // skip malformed SSE lines
@@ -93,7 +103,7 @@ export function useChatbot() {
         setIsTyping(false);
       }
     },
-    [isTyping, sessionId]
+    [isTyping, sessionId, onMessageComplete]
   );
 
   return { messages, isTyping, messageCount, isLimitReached, error, sendMessage };

@@ -4,7 +4,20 @@ import ChatMessage from './ChatMessage';
 const pixelFont = { fontFamily: "'Press Start 2P', cursive" };
 const monoFont = { fontFamily: "'Roboto Mono', monospace" };
 
-export default function ChatWindow({ messages, isTyping, isLimitReached, error, onSend, onClose }) {
+export default function ChatWindow({
+  messages,
+  isTyping,
+  isLimitReached,
+  error,
+  onSend,
+  onClose,
+  isListening,
+  isSpeaking,
+  voiceEnabled,
+  voiceSupported,
+  onMicClick,
+  onVoiceToggle,
+}) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
   // Track touch start Y to detect swipe-down-to-close on mobile
@@ -63,14 +76,29 @@ export default function ChatWindow({ messages, isTyping, isLimitReached, error, 
             SALIM BOT
           </span>
         </div>
-        <button
-          onClick={onClose}
-          className="text-[var(--text-secondary)] hover:text-[var(--accent)] text-[9px] transition-colors"
-          style={pixelFont}
-          aria-label="Close chat"
-        >
-          [X]
-        </button>
+        <div className="flex items-center gap-2">
+          {voiceSupported && (
+            <button
+              onClick={onVoiceToggle}
+              className="text-[9px] transition-colors"
+              style={{
+                ...pixelFont,
+                color: voiceEnabled ? 'var(--accent)' : 'var(--text-secondary)',
+              }}
+              aria-label="Toggle voice"
+            >
+              {voiceEnabled ? (isSpeaking ? '[♪]' : '[VOC]') : '[VOC]'}
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="text-[var(--text-secondary)] hover:text-[var(--accent)] text-[9px] transition-colors"
+            style={pixelFont}
+            aria-label="Close chat"
+          >
+            [X]
+          </button>
+        </div>
       </div>
 
       {/* ── Messages ── */}
@@ -120,6 +148,28 @@ export default function ChatWindow({ messages, isTyping, isLimitReached, error, 
               "
               style={{ ...monoFont, borderRadius: 0 }}
             />
+            {voiceSupported && !isLimitReached && (
+              <button
+                type="button"
+                onClick={onMicClick}
+                disabled={isTyping}
+                className="
+                  px-3 py-2 text-[8px] border-2 flex-shrink-0
+                  disabled:opacity-40 disabled:cursor-not-allowed transition-colors
+                "
+                style={{
+                  ...pixelFont,
+                  borderRadius: 0,
+                  borderColor: isListening ? '#ef4444' : 'var(--border)',
+                  color: isListening ? '#ef4444' : 'var(--text-secondary)',
+                  background: 'transparent',
+                  animation: isListening ? 'pulse 1s infinite' : 'none',
+                }}
+                aria-label="Voice input"
+              >
+                {isListening ? '[●]' : '[MIC]'}
+              </button>
+            )}
             <button
               type="submit"
               disabled={isTyping || !input.trim()}
